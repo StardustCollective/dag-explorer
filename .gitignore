@@ -1,0 +1,25 @@
+# dependencies
+/node_modules
+
+# production
+/dist
+/docs
+
+# misc
+.idea
+.awcache
+.eslintcache
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+yarn-debug.log*
+yarn-error.log*
+
+.cache
+.tmp
+
+# test
+coverage
