@@ -1,0 +1,92 @@
+{
+  "name": "cms-next",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@material-ui/core": "^4.9.10",
+    "@material-ui/icons": "^4.9.1",
+    "@material-ui/styles": "^4.9.10",
+    "@openfonts/poppins_all": "^1.44.4",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "react-router-dom": "^5.1.2",
+    "styled-components": "^5.1.0",
+    "whatwg-fetch": "^3.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.8.4",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/preset-env": "^7.8.4",
+    "@babel/preset-react": "^7.8.3",
+    "@babel/preset-typescript": "^7.8.3",
+    "@types/react": "^16.8.22",
+    "@types/react-dom": "^16.9.6",
+    "@types/react-router-dom": "^5.1.3",
+    "@types/styled-components": "^5.0.1",
+    "@typescript-eslint/eslint-plugin": "^2.19.2",
+    "@typescript-eslint/parser": "^2.19.2",
+    "awesome-typescript-loader": "^5.2.1",
+    "babel-loader": "^8.0.6",
+    "babel-plugin-styled-components": "^1.10.7",
+    "cache-loader": "^4.1.0",
+    "cross-env": "^7.0.0",
+    "css-loader": "^3.4.2",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.0",
+    "eslint-config-react": "^1.1.7",
+    "eslint-plugin-import": "^2.20.1",
+    "eslint-plugin-prettier": "^3.1.1",
+    "eslint-plugin-react": "^7.18.3",
+    "file-loader": "^5.0.2",
+    "html-webpack-plugin": "^3.2.0",
+    "husky": "^4.2.3",
+    "lint-staged": "^10.0.7",
+    "npm-run-all": "^4.1.5",
+    "prettier": "1.19.1",
+    "raw-loader": "^4.0.0",
+    "react-docgen": "^5.2.1",
+    "react-docgen-typescript": "^1.16.2",
+    "react-styleguidist": "^11.0.5",
+    "react-svg-loader": "^3.0.3",
+    "react-test-renderer": "^16.12.0",
+    "string-hash": "^1.1.3",
+    "style-loader": "^1.1.3",
+    "typescript": "^3.7.5",
+    "typescript-plugin-styled-components": "^1.4.4",
+    "url-loader": "^3.0.0",
+    "webpack": "^4.41.6",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.10.3"
+  },
+  "scripts": {
+    "start": "webpack-dev-server -w --config ./webpack.config.js",
+    "build": "cross-env NODE_ENV=production webpack --config ./webpack.config.js",
+    "dev": "npx styleguidist server --config ./styleguide.config.js --port 6060",
+    "docs": "npx styleguidist build --config ./styleguide.config.js",
+    "lint": "eslint src/**/**/*.{ts,tsx}",
+    "lint:fix": "yarn lint --fix"
+  },
+  "lint-staged": {
+    "src/**/*.{json,css}": [
+      "prettier --write"
+    ],
+    "src/**/*.{ts,tsx}": [
+      "prettier --write",
+      "eslint --fix"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "tsc --noEmit && lint-staged",
+      "post-commit": "git update-index --again"
+    }
+  },
+  "postcss": {
+    "modules": false,
+    "plugins": {
+      "autoprefixer": {
+        "flexbox": "no-2009"
+      }
+    }
+  }
+}
