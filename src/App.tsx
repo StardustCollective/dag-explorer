@@ -40,7 +40,7 @@ export default () => {
         <ListItem
           component={Link}
           to="/"
-          selected={!!location.pathname.match(/^\/(?:dashboard|$)/)}
+          selected={location.pathname === '/'}
           button
         >
           <ListItemIcon>
@@ -51,7 +51,7 @@ export default () => {
         <ListItem
           component={Link}
           to="/wallet"
-          selected={!!location.pathname.match(/^\/wallet/)}
+          selected={!!location.pathname.startsWith(`/wallet`)}
           button
         >
           <ListItemIcon>
@@ -61,8 +61,8 @@ export default () => {
         </ListItem>
         <ListItem
           component={Link}
-          to="/transactions"
-          selected={!!location.pathname.match(/^\/transactions/)}
+          to={`/transactions`}
+          selected={!!location.pathname.startsWith(`/transactions`)}
           button
         >
           <ListItemIcon>
@@ -72,8 +72,8 @@ export default () => {
         </ListItem>
         <ListItem
           component={Link}
-          to="/about"
-          selected={!!location.pathname.match(/^\/about/)}
+          to={`/about`}
+          selected={!!location.pathname.startsWith(`/about`)}
           button
         >
           <ListItemIcon>

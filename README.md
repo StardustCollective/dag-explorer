@@ -43,3 +43,9 @@ Build documentation
 ```shell
 yarn docs
 ```
+
+Deploy to github pages
+
+```shell
+yarn deploy
+```

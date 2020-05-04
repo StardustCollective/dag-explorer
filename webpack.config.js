@@ -1,4 +1,5 @@
 const path = require('path');
+const URL = require('url');
 const hash = require('string-hash');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { DefinePlugin } = require('webpack');
@@ -11,6 +12,13 @@ module.exports = (env = {}, argv = {}) => {
   const context = path.resolve(__dirname, './src');
   const dist = path.join(__dirname, './dist');
   const mode = argv.mode || process.env.NODE_ENV || 'development';
+  const { 'output-public-path': publicPath = '/' } = argv;
+  const pathname = URL.parse(publicPath);
+
+  env = {
+    ...env,
+    PUBLIC_PATH: publicPath
+  };
 
   return {
     context,
@@ -22,7 +30,7 @@ module.exports = (env = {}, argv = {}) => {
     output: {
       path: dist,
       filename: '[name].bundle.js',
-      publicPath: '/',
+      publicPath,
     },
     resolve: {
       extensions: ['.ts', '.tsx', '.js', '.jsx'],
@@ -52,6 +60,7 @@ module.exports = (env = {}, argv = {}) => {
     devServer: {
       historyApiFallback: true,
       contentBase: dist,
+      publicPath,
       host: '0.0.0.0',
       port: 3000,
       // proxy: {
@@ -148,6 +157,14 @@ module.exports = (env = {}, argv = {}) => {
       ],
     },
     plugins: [
+      new DefinePlugin({
+        'process.env': Object.assign(
+          {},
+          ...Object.entries(env).map(([key, value]) => ({
+            [`${key}`]: JSON.stringify(value),
+          }))
+        ),
+      }),
       new HtmlWebpackPlugin({
         template: './index.html',
         filename: 'index.html',
@@ -155,6 +172,7 @@ module.exports = (env = {}, argv = {}) => {
         title: 'Star Gazer',
         path: dist,
         hash: true,
+        publicPath
       }),
     ],
   };
