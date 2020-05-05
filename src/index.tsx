@@ -22,7 +22,7 @@ ReactDOM.render(
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <GlobalStyle />
-        <Router>
+        <Router basename={process.env.PUBLIC_PATH}>
           <App />
         </Router>
       </ThemeProvider>

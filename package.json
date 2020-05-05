@@ -38,6 +38,7 @@
     "eslint-plugin-prettier": "^3.1.1",
     "eslint-plugin-react": "^7.18.3",
     "file-loader": "^5.0.2",
+    "gh-pages": "^2.2.0",
     "html-webpack-plugin": "^3.2.0",
     "husky": "^4.2.3",
     "lint-staged": "^10.0.7",
@@ -59,12 +60,16 @@
     "webpack-dev-server": "^3.10.3"
   },
   "scripts": {
-    "start": "webpack-dev-server -w --config ./webpack.config.js",
+    "start": "webpack-dev-server -w --config ./webpack.config.js --output-public-path /star-gazer/",
     "build": "cross-env NODE_ENV=production webpack --config ./webpack.config.js",
     "dev": "npx styleguidist server --config ./styleguide.config.js --port 6060",
     "docs": "npx styleguidist build --config ./styleguide.config.js",
     "lint": "eslint src/**/**/*.{ts,tsx}",
-    "lint:fix": "yarn lint --fix"
+    "lint:fix": "yarn lint --fix",
+    "build:dev": "cross-env NODE_ENV=development webpack --config ./webpack.config.js --output-public-path /star-gazer/",
+    "deploy:push": "gh-pages -d dist",
+    "clean": "rm -rf dist",
+    "deploy": "run-s \"build --output-public-path /star-gazer/\" deploy:push clean"
   },
   "lint-staged": {
     "src/**/*.{json,css}": [
