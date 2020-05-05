@@ -12,7 +12,7 @@ module.exports = (env = {}, argv = {}) => {
   const context = path.resolve(__dirname, './src');
   const dist = path.join(__dirname, './dist');
   const mode = argv.mode || process.env.NODE_ENV || 'development';
-  const { 'output-public-path': publicPath = '/' } = argv;
+  const { 'output-public-path': publicPath = '/', 'output-public-routes': outputPublicRoutes = '' } = argv;
   const pathname = URL.parse(publicPath);
 
   env = {
@@ -165,15 +165,19 @@ module.exports = (env = {}, argv = {}) => {
           }))
         ),
       }),
-      new HtmlWebpackPlugin({
-        template: './index.html',
-        filename: 'index.html',
-        showErrors: true,
-        title: 'Star Gazer',
-        path: dist,
-        hash: true,
-        publicPath
-      }),
+      ...['', ...outputPublicRoutes.split(/\s*,\s*/).map(route => `${route}/`)].map((route) => {
+        return new HtmlWebpackPlugin({
+          template: './index.html',
+          inject: true,
+          filename: `${route}index.html`,
+          showErrors: true,
+          title: 'Star Gazer',
+          path: dist,
+          hash: true,
+          base: publicPath,
+          publicPath
+        });
+      })
     ],
   };
 };
