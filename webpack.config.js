@@ -12,8 +12,8 @@ const tsconfig = require('./tsconfig.json');
 module.exports = (env = {}, argv = {}) => {
   const context = path.resolve(__dirname, './src');
   const dist = path.join(__dirname, './dist');
-  const mode = argv.mode || process.env.NODE_ENV || 'development';
-  const { 'output-public-path': publicPath = '/', 'output-public-routes': outputPublicRoutes = '' } = argv;
+  const mode = argv.mode || process.env.NODE_ENV || 'development';
+  const { 'output-public-path': publicPath = '/', 'output-public-routes': outputPublicRoutes = '' } = argv;
   const pathname = URL.parse(publicPath);
 
   env = {
@@ -24,11 +24,9 @@ module.exports = (env = {}, argv = {}) => {
   return {
     context,
     mode: mode,
-    entry: Object.assign({}, mode === 'development' && {
-      mock: path.resolve(__dirname, './mock.js')
-    }, {
+    entry: {
       main: path.join(context, 'index.tsx')
-    }),
+    },
     stats: 'minimal',
     output: {
       path: dist,
@@ -166,18 +164,10 @@ module.exports = (env = {}, argv = {}) => {
           ...Object.entries(env).map(([key, value]) => ({
             [`${key}`]: JSON.stringify(value),
           }))
-        )
+        ),
       }),
       new MomentLocalesPlugin({
         localesToKeep: ['en', 'de'],
-      }),
-      new HtmlWebpackPlugin({
-        template: './index.html',
-        filename: 'index.html',
-        showErrors: true,
-        title: 'Star Gazer',
-        path: dist,
-        hash: true,
       }),
       ...['', ...outputPublicRoutes.split(/\s*,\s*/).map(route => `${route}/`)].map((route) => {
         return new HtmlWebpackPlugin({

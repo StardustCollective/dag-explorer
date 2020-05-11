@@ -25,7 +25,7 @@ import {
   SidebarTop
 } from './App.styled';
 import { Logo } from '~assets';
-import { Dashboard, Wallet, Transactions, About } from '~pages';
+import { Dashboard, Transactions, About } from '~pages';
 
 export default () => {
   const location = useLocation();
@@ -63,19 +63,8 @@ export default () => {
         </ListItem>
         <ListItem
           component={Link}
-          to="/wallet"
-          selected={!!location.pathname.startsWith(`/wallet`)}
-          button
-        >
-          <ListItemIcon>
-            <Icon.AccountBalanceWallet />
-          </ListItemIcon>
-          <ListItemText primary="Wallet Information" />
-        </ListItem>
-        <ListItem
-          component={Link}
-          to={`/transactions`}
-          selected={!!location.pathname.startsWith(`/transactions`)}
+          to="/transactions"
+          selected={!!location.pathname.match(/^\/transactions/)}
           button
         >
           <ListItemIcon>
@@ -140,7 +129,6 @@ export default () => {
         <Content>
           <Switch>
             <Route path="/" exact={true} component={Dashboard} />
-            <Route path="/wallet" exact={true} component={Wallet} />
             <Route path="/transactions" exact={true} component={Transactions} />
             <Route path="/about" exact={true} component={About} />
           </Switch>

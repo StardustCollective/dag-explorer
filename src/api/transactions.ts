@@ -1,33 +1,44 @@
 import qs from 'qs';
-import { PagedResult, SearchParams, PagedParams } from '.';
+import { PagedResult, SearchParams, PagedParams, fetchInfo } from '.';
 
 export type Transaction = {
-  id: number;
-  txnHash: string;
-  blockNo: number;
-  date: string;
-  from: string;
-  to: string;
-  value: number;
-  txnFee: number;
+  amount: number;
+  block: string;
+  fee: number;
+  hash: string;
+  isDummy?: boolean;
+  receiver: string;
+  sender: string;
 };
 
 export const fetchTransactions = async (
   params?: SearchParams<Transaction> & PagedParams
 ): Promise<PagedResult<Transaction>> => {
-  const response = await fetch(
-    `http://localhost:3000/api/v1/transactions${
-      params ? '?' + qs.stringify(params) : ''
-    }`
-  );
-  return await response.json();
-};
+  let queryString = '';
 
-export const fetchTransaction = async (
-  id: number | string
-): Promise<Transaction> => {
+  if (params) {
+    const { startAt = 0, endAt = 9, term = '', keys = [] } = params;
+    const orderBy = term ? keys.join(',') : '$key';
+
+    const urlParams = term
+      ? {
+          orderBy: JSON.stringify(orderBy),
+          equalTo: term ? JSON.stringify(term) : undefined
+        }
+      : {
+          startAt: `\"${startAt}\"`,
+          endAt: `\"${endAt}\"`,
+          orderBy: JSON.stringify(orderBy)
+        };
+
+    queryString = `?${qs.stringify(urlParams)}`;
+  }
+
   const response = await fetch(
-    `http://localhost:3000/api/v1/transactions/${id}`
+    `https://stargazer-4497c.firebaseio.com/latest/transactions.json${queryString}`
   );
-  return await response.json();
+  const rows = await response.json();
+  const { txCount: count } = await fetchInfo();
+
+  return { rows: Object.values(rows), count };
 };
