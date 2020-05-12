@@ -8,14 +8,22 @@ import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
 import IconButton from '@material-ui/core/IconButton';
 import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import * as Icon from '@material-ui/icons';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
+import Box from '@material-ui/core/Box';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
-import { App, Sidebar, Main, Content } from './App.styled';
+import {
+  App,
+  Sidebar,
+  Main,
+  Content,
+  ListItem,
+  Shape,
+  SidebarTop
+} from './App.styled';
 import { Logo } from '~assets';
 import { Dashboard, Wallet, Transactions, About } from '~pages';
 
@@ -30,11 +38,16 @@ export default () => {
 
   const drawer = (
     <div>
-      <div>
-        <Typography variant="h6" noWrap>
-          Block Explorer
-        </Typography>
-      </div>
+      <SidebarTop>
+        <Box display="flex" alignItems="center" flexDirection="column">
+          <Shape />
+          <Box mt={1}>
+            <Typography variant="subtitle2" noWrap>
+              Welcome to your $DAG wallet
+            </Typography>
+          </Box>
+        </Box>
+      </SidebarTop>
       <Divider />
       <List>
         <ListItem
@@ -109,7 +122,7 @@ export default () => {
         </Drawer>
       </Sidebar>
       <Main>
-        <AppBar position="sticky" color="transparent">
+        <AppBar position="sticky" color="inherit">
           <Toolbar>
             {!matchesSmUp && (
               <IconButton

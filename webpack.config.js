@@ -2,6 +2,7 @@ const path = require('path');
 const URL = require('url');
 const hash = require('string-hash');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MomentLocalesPlugin = require('moment-locales-webpack-plugin');
 const { DefinePlugin } = require('webpack');
 const styledComponentsTransformer = require('typescript-plugin-styled-components')
   .default;
@@ -23,9 +24,11 @@ module.exports = (env = {}, argv = {}) => {
   return {
     context,
     mode: mode,
-    entry: {
+    entry: Object.assign({}, mode === 'development' && {
+      mock: path.resolve(__dirname, './mock.js')
+    }, {
       main: path.join(context, 'index.tsx')
-    },
+    }),
     stats: 'minimal',
     output: {
       path: dist,
@@ -163,7 +166,18 @@ module.exports = (env = {}, argv = {}) => {
           ...Object.entries(env).map(([key, value]) => ({
             [`${key}`]: JSON.stringify(value),
           }))
-        ),
+        )
+      }),
+      new MomentLocalesPlugin({
+        localesToKeep: ['en', 'de'],
+      }),
+      new HtmlWebpackPlugin({
+        template: './index.html',
+        filename: 'index.html',
+        showErrors: true,
+        title: 'Star Gazer',
+        path: dist,
+        hash: true,
       }),
       ...['', ...outputPublicRoutes.split(/\s*,\s*/).map(route => `${route}/`)].map((route) => {
         return new HtmlWebpackPlugin({
