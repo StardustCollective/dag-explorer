@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "webpack": {
-    "routes": "wallet,transactions,about"
+    "routes": "transactions,about"
   },
   "dependencies": {
     "@material-ui/core": "^4.9.12",
@@ -47,12 +47,9 @@
     "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-prettier": "^3.1.1",
     "eslint-plugin-react": "^7.18.3",
-    "faker": "^4.1.0",
-    "fetch-mock": "^9.4.0",
     "file-loader": "^5.0.2",
-    "fuse.js": "^5.2.3",
     "gh-pages": "^2.2.0",
-    "html-webpack-plugin": "^3.2.0",
+    "html-webpack-plugin": "^4.3.0",
     "husky": "^4.2.3",
     "json5": "^2.1.3",
     "lint-staged": "^10.0.7",
@@ -85,7 +82,7 @@
     "lint:fix": "yarn lint --fix",
     "deploy:push": "gh-pages -d dist",
     "clean": "rm -rf dist",
-    "deploy": "run-s build:dev deploy:push clean"
+    "deploy": "run-s build deploy:push clean"
   },
   "lint-staged": {
     "src/**/*.{json,css}": [

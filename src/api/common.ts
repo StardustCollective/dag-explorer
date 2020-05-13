@@ -1,6 +1,7 @@
 export type PagedParams = {
-  page?: number;
-  rowsPerPage?: number;
+  startAt?: number;
+  endAt?: number;
+  orderBy?: string;
 };
 
 export type PagedResult<T> = {
@@ -9,6 +10,11 @@ export type PagedResult<T> = {
 };
 
 export type SearchParams<T> = {
-  term: string;
+  term?: string;
   keys?: (keyof T)[];
+};
+
+export type OtherPagedParams = {
+  startAt?: number;
+  endAt?: number;
 };
