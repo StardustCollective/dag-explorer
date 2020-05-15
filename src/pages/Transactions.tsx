@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { useLocation, useHistory } from 'react-router-dom';
+import { useLocation, useHistory, Link as RouterLink } from 'react-router-dom';
 import 'moment/min/locales';
 import qs from 'qs';
 import Card from '@material-ui/core/Card';
@@ -14,13 +14,17 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Box from '@material-ui/core/Box';
+import Skeleton from '@material-ui/lab/Skeleton';
+import Link from '@material-ui/core/Link';
 import SearchForm from '~features/transactions/SearchForm';
 
 import {
   fetchTransactions,
   Transaction,
   PagedResult,
-  SearchParams
+  SearchParams,
+  fetchAddress,
+  Address
 } from '~api';
 
 export default () => {
@@ -31,14 +35,33 @@ export default () => {
   ]);
   const { startAt = 0, endAt = 9, term, keys } = params;
   const rowsPerPage = +endAt - +startAt + 1;
-  const [{ rows, count }, setTransactionResult] = useState<
-    PagedResult<Transaction>
-  >({
-    count: -1,
-    rows: []
-  });
-
+  const [isPending, setPending] = useState<boolean>(true);
+  const [transactionResult, setTransactionResult] = useState<PagedResult<
+    Transaction
+  > | null>(null);
+  const { rows = [], count = -1 } = transactionResult || {};
+  const [address, setAddress] = useState<Address | null>();
   const page = count ? ~~(+startAt / rowsPerPage) : 0;
+  const isAddress = useMemo(
+    () =>
+      term &&
+      count === rows.length &&
+      rows.every(row => row.sender === term || row.receiver === term),
+    [term, count, rows]
+  );
+  const isBlock = useMemo(
+    () =>
+      term &&
+      count === rows.length &&
+      rows.length &&
+      rows.every(transaction => transaction.block === term),
+    [term, count, rows]
+  );
+  const block = isBlock ? { hash: term } : null;
+  const isSingleTransaction =
+    term && !isAddress && !isBlock && rows.length === 1;
+  const transaction = isSingleTransaction ? rows[0] : null;
+
   const handleChangePage = (
     _: React.MouseEvent<HTMLButtonElement, MouseEvent> | null,
     nextPage: number
@@ -66,12 +89,26 @@ export default () => {
   };
 
   useEffect(() => {
+    if (isAddress) {
+      fetchAddress(term).then(payload => {
+        setAddress(payload);
+      });
+    } else {
+      setAddress(null);
+    }
+  }, [location, term, isAddress]);
+
+  useEffect(() => {
+    setPending(true);
     fetchTransactions({
       startAt,
       endAt,
       keys,
       term
-    }).then(payload => setTransactionResult(payload));
+    }).then(payload => {
+      setPending(false);
+      setTransactionResult(payload);
+    });
   }, [location]);
 
   return (
@@ -80,78 +117,230 @@ export default () => {
         <Card>
           <CardContent>
             <Typography gutterBottom variant="h5" component="h1">
-              Transactions
+              Constellation Block Explorer
             </Typography>
             <SearchForm term={term} keys={keys} onFormSubmit={handleSearch} />
           </CardContent>
         </Card>
       </Box>
-      <Box>
-        {rows.length ? (
-          <>
-            <TableContainer component={Paper}>
+      {isAddress && (
+        <Box mb={2}>
+          <Card>
+            <CardContent>
+              <Typography gutterBottom variant="h6" component="h2">
+                Address
+              </Typography>
               <Table aria-label="simple table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Txn Hash</TableCell>
-                    <TableCell>Block Hash</TableCell>
-                    <TableCell>Date</TableCell>
-                    <TableCell>From</TableCell>
-                    <TableCell>To</TableCell>
-                    <TableCell>Value</TableCell>
-                    <TableCell>Txn Fee</TableCell>
-                  </TableRow>
-                </TableHead>
                 <TableBody>
-                  {rows.map(
-                    ({ amount, block, hash, sender, receiver, fee }) => (
-                      <TableRow key={hash}>
-                        <TableCell size="small">
-                          <Typography variant="body2" display="block" noWrap>
-                            {hash}
-                          </Typography>
-                        </TableCell>
-                        <TableCell size="small">
-                          <Typography variant="body2" display="block" noWrap>
-                            {block}
-                          </Typography>
-                        </TableCell>
-                        <TableCell size="small">
-                          {/*`${moment
-                            .duration(moment.now())
-                            .humanize()} ago`*/}
-                        </TableCell>
-                        <TableCell size="small">
-                          <Typography variant="body2" display="block" noWrap>
-                            {sender}
-                          </Typography>
-                        </TableCell>
-                        <TableCell size="small">
-                          <Typography variant="body2" display="block" noWrap>
-                            {receiver}
-                          </Typography>
-                        </TableCell>
-                        <TableCell size="small">{amount}</TableCell>
-                        <TableCell size="small">{fee}</TableCell>
-                      </TableRow>
-                    )
-                  )}
+                  <TableRow>
+                    <TableCell size="small">Address</TableCell>
+                    <TableCell>
+                      {(address && `${address.hash}`) || (
+                        <Skeleton variant="text" />
+                      )}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell size="small">Balance</TableCell>
+                    <TableCell>
+                      {(address && `${address.balance} $DAG`) || (
+                        <Skeleton variant="text" />
+                      )}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell size="small">$DAG Value</TableCell>
+                    <TableCell>
+                      {(address && `${address.balance} $DAG`) || (
+                        <Skeleton variant="text" />
+                      )}
+                    </TableCell>
+                  </TableRow>
                 </TableBody>
               </Table>
-            </TableContainer>
-            <TablePagination
-              rowsPerPageOptions={[10, 25, 100]}
-              component="div"
-              count={count}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onChangePage={handleChangePage}
-              onChangeRowsPerPage={handleChangeRowsPerPage}
-            />
-          </>
-        ) : (
-          count === 0 && <Typography component="h6">No results.</Typography>
-        )}
+            </CardContent>
+          </Card>
+        </Box>
+      )}
+      {isBlock && (
+        <Box mb={2}>
+          <Card>
+            <CardContent>
+              <Typography gutterBottom variant="h6" component="h2">
+                Block
+              </Typography>
+              <Table aria-label="Block Details">
+                <TableBody>
+                  <TableRow>
+                    <TableCell>Hash</TableCell>
+                    <TableCell>
+                      <Link
+                        component={RouterLink}
+                        to={`/transactions?${qs.stringify({
+                          term: block!.hash
+                        })}`}
+                      >
+                        {block!.hash}
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </Box>
+      )}
+      {isSingleTransaction && (
+        <Box mb={2}>
+          <Card>
+            <CardContent>
+              <Typography gutterBottom variant="h6" component="h2">
+                Transaction
+              </Typography>
+              <Table aria-label="Transaction Details">
+                <TableBody>
+                  <TableRow>
+                    <TableCell>Hash</TableCell>
+                    <TableCell>{transaction!.hash}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Block</TableCell>
+                    <TableCell>
+                      <Link
+                        component={RouterLink}
+                        to={`/transactions?${qs.stringify({
+                          term: transaction!.block
+                        })}`}
+                      >
+                        {transaction!.block}
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>From</TableCell>
+                    <TableCell>
+                      <Link
+                        component={RouterLink}
+                        to={`/transactions?${qs.stringify({
+                          term: transaction!.sender
+                        })}`}
+                      >
+                        {transaction!.sender}
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>To</TableCell>
+                    <TableCell>
+                      <Link
+                        component={RouterLink}
+                        to={`/transactions?${qs.stringify({
+                          term: transaction!.receiver
+                        })}`}
+                      >
+                        {transaction!.receiver}
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </Box>
+      )}
+      <Box>
+        {!isSingleTransaction &&
+          (isPending ? (
+            <div>Fetching transactions...</div>
+          ) : rows.length > 0 ? (
+            <>
+              <TableContainer component={Paper}>
+                <Table aria-label="Transaction Results">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Hash</TableCell>
+                      <TableCell>Block</TableCell>
+                      <TableCell>From</TableCell>
+                      <TableCell>To</TableCell>
+                      <TableCell>Value</TableCell>
+                      <TableCell>Fee</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {rows.map(
+                      ({ amount, block, hash, sender, receiver, fee }) => (
+                        <TableRow key={hash}>
+                          <TableCell size="small">
+                            <Typography variant="body2" display="block" noWrap>
+                              <Link
+                                component={RouterLink}
+                                to={`/transactions?${qs.stringify({
+                                  term: hash
+                                })}`}
+                              >
+                                {hash}
+                              </Link>
+                            </Typography>
+                          </TableCell>
+                          <TableCell size="small">
+                            <Typography variant="body2" display="block" noWrap>
+                              <Link
+                                component={RouterLink}
+                                to={`/transactions?${qs.stringify({
+                                  term: block
+                                })}`}
+                              >
+                                {block}
+                              </Link>
+                            </Typography>
+                          </TableCell>
+                          <TableCell size="small">
+                            <Typography variant="body2" display="block" noWrap>
+                              <Link
+                                component={RouterLink}
+                                to={`/transactions?${qs.stringify({
+                                  term: sender
+                                })}`}
+                              >
+                                {sender}
+                              </Link>
+                            </Typography>
+                          </TableCell>
+                          <TableCell size="small">
+                            <Typography variant="body2" display="block" noWrap>
+                              <Link
+                                component={RouterLink}
+                                to={`/transactions?${qs.stringify({
+                                  term: receiver
+                                })}`}
+                              >
+                                {receiver}
+                              </Link>
+                            </Typography>
+                          </TableCell>
+                          <TableCell size="small">{amount}</TableCell>
+                          <TableCell size="small">{fee}</TableCell>
+                        </TableRow>
+                      )
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              {count > rows.length && (
+                <TablePagination
+                  rowsPerPageOptions={[10, 25, 100]}
+                  component="div"
+                  count={count}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  onChangePage={handleChangePage}
+                  onChangeRowsPerPage={handleChangeRowsPerPage}
+                />
+              )}
+            </>
+          ) : (
+            <Typography component="span">No transactions found.</Typography>
+          ))}
       </Box>
     </>
   );

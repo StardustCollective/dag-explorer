@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
@@ -27,15 +27,16 @@ export interface SearchFormProps extends SearchParams<Transaction> {
 export default ({ onFormSubmit, ...defaultValues }: SearchFormProps) => {
   const filterOptions = [
     { label: 'Tx Hash', value: 'hash' },
-    { label: 'Block Hash', value: 'block' }
-    // { label: 'From', value: 'sender' },
-    // { label: 'To', value: 'receiver' }
+    { label: 'Block Hash', value: 'block' },
+    { label: 'Address', value: 'address' }
   ] as {
     label: string;
     value: keyof Transaction;
   }[];
 
-  const { register, handleSubmit, watch } = useForm<SearchParams<Transaction>>({
+  const { register, handleSubmit, watch, reset } = useForm<
+    SearchParams<Transaction>
+  >({
     defaultValues
   });
 
@@ -45,6 +46,10 @@ export default ({ onFormSubmit, ...defaultValues }: SearchFormProps) => {
     variant: 'popper',
     popupId: 'demoPopper'
   });
+
+  useEffect(() => {
+    reset(defaultValues);
+  }, [JSON.stringify(defaultValues)]);
 
   return (
     <form onSubmit={handleSubmit(onFormSubmit)}>

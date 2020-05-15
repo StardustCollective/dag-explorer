@@ -14,15 +14,20 @@ export type Transaction = {
 export const fetchTransactions = async (
   params?: SearchParams<Transaction> & PagedParams
 ): Promise<PagedResult<Transaction>> => {
-  const filterKeys = [
-    'block',
-    'hash'
-    // 'sender',
-    // 'receiver'
-  ];
+  const filterKeys = ['block', 'hash', 'address'];
   const { startAt = 0, endAt = 9, term, keys = [] } = params || {};
   const requestKeys = term ? (keys.length ? keys : filterKeys) : ['$key'];
   const requests = requestKeys.map(key => {
+    if (key === 'address') {
+      const queryString = `?${qs.stringify({
+        address: term
+      })}`;
+
+      return fetch(
+        `https://www.stargazer.network/api/v1/transactions${queryString}`
+      );
+    }
+
     const params = Object.assign(
       {},
       {
@@ -39,18 +44,33 @@ export const fetchTransactions = async (
 
     return fetch(
       `https://stargazer-4497c.firebaseio.com/latest/transactions.json${queryString}`
-    );
+    ).catch(() => null);
   });
 
   const responses = await Promise.all(requests);
-  const results = await Promise.all(responses.map(response => response.json()));
-  const rows = results
+  const results = await Promise.all(
+    responses
+      .filter(response => response !== null && response.status === 200)
+      .map(response => response!.json())
+  );
+  const transactions = results
     .map(rows => Object.values(rows))
     .reduce((result, current) =>
       current.length > result.length ? current : result
-    ) as Transaction[];
+    ) as (Transaction & {
+    checkpointBlock?: string;
+  })[];
 
-  const { txCount: count } = await fetchInfo();
+  const rows = transactions.map(
+    ({ block, checkpointBlock, ...transaction }) => ({
+      ...transaction,
+      block: checkpointBlock || block || ''
+    })
+  );
+
+  const { txCount } = await fetchInfo();
+
+  const count = term ? rows.length : txCount;
 
   return { rows, count };
 };
