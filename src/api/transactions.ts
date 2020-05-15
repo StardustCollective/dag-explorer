@@ -14,31 +14,43 @@ export type Transaction = {
 export const fetchTransactions = async (
   params?: SearchParams<Transaction> & PagedParams
 ): Promise<PagedResult<Transaction>> => {
-  let queryString = '';
+  const filterKeys = [
+    'block',
+    'hash'
+    // 'sender',
+    // 'receiver'
+  ];
+  const { startAt = 0, endAt = 9, term, keys = [] } = params || {};
+  const requestKeys = term ? (keys.length ? keys : filterKeys) : ['$key'];
+  const requests = requestKeys.map(key => {
+    const params = Object.assign(
+      {},
+      {
+        orderBy: JSON.stringify(key),
+        equalTo: term ? JSON.stringify(term) : undefined
+      },
+      !term && {
+        startAt: `\"${startAt}\"`,
+        endAt: `\"${endAt}\"`
+      }
+    );
 
-  if (params) {
-    const { startAt = 0, endAt = 9, term = '', keys = [] } = params;
-    const orderBy = term ? keys.join(',') : '$key';
+    const queryString = `?${qs.stringify(params)}`;
 
-    const urlParams = term
-      ? {
-          orderBy: JSON.stringify(orderBy),
-          equalTo: term ? JSON.stringify(term) : undefined
-        }
-      : {
-          startAt: `\"${startAt}\"`,
-          endAt: `\"${endAt}\"`,
-          orderBy: JSON.stringify(orderBy)
-        };
+    return fetch(
+      `https://stargazer-4497c.firebaseio.com/latest/transactions.json${queryString}`
+    );
+  });
 
-    queryString = `?${qs.stringify(urlParams)}`;
-  }
+  const responses = await Promise.all(requests);
+  const results = await Promise.all(responses.map(response => response.json()));
+  const rows = results
+    .map(rows => Object.values(rows))
+    .reduce((result, current) =>
+      current.length > result.length ? current : result
+    ) as Transaction[];
 
-  const response = await fetch(
-    `https://stargazer-4497c.firebaseio.com/latest/transactions.json${queryString}`
-  );
-  const rows = await response.json();
   const { txCount: count } = await fetchInfo();
 
-  return { rows: Object.values(rows), count };
+  return { rows, count };
 };

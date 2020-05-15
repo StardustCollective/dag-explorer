@@ -26,10 +26,10 @@ export interface SearchFormProps extends SearchParams<Transaction> {
 
 export default ({ onFormSubmit, ...defaultValues }: SearchFormProps) => {
   const filterOptions = [
-    { label: 'Txn Hash', value: 'hash' },
-    { label: 'Block No', value: 'block' },
-    { label: 'From', value: 'sender' },
-    { label: 'To', value: 'receiver' }
+    { label: 'Tx Hash', value: 'hash' },
+    { label: 'Block Hash', value: 'block' }
+    // { label: 'From', value: 'sender' },
+    // { label: 'To', value: 'receiver' }
   ] as {
     label: string;
     value: keyof Transaction;

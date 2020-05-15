@@ -34,7 +34,7 @@ export default () => {
   const [{ rows, count }, setTransactionResult] = useState<
     PagedResult<Transaction>
   >({
-    count: 0,
+    count: -1,
     rows: []
   });
 
@@ -87,63 +87,71 @@ export default () => {
         </Card>
       </Box>
       <Box>
-        <TableContainer component={Paper}>
-          <Table aria-label="simple table">
-            <TableHead>
-              <TableRow>
-                <TableCell>Txn Hash</TableCell>
-                <TableCell>Block Hash</TableCell>
-                <TableCell>Date</TableCell>
-                <TableCell>From</TableCell>
-                <TableCell>To</TableCell>
-                <TableCell>Value</TableCell>
-                <TableCell>Txn Fee</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {rows.map(({ amount, block, hash, sender, receiver, fee }) => (
-                <TableRow key={hash}>
-                  <TableCell size="small">
-                    <Typography variant="body2" display="block" noWrap>
-                      {hash}
-                    </Typography>
-                  </TableCell>
-                  <TableCell size="small">
-                    <Typography variant="body2" display="block" noWrap>
-                      {block}
-                    </Typography>
-                  </TableCell>
-                  <TableCell size="small">
-                    {/*`${moment
-                        .duration(moment.now())
-                        .humanize()} ago`*/}
-                  </TableCell>
-                  <TableCell size="small">
-                    <Typography variant="body2" display="block" noWrap>
-                      {sender}
-                    </Typography>
-                  </TableCell>
-                  <TableCell size="small">
-                    <Typography variant="body2" display="block" noWrap>
-                      {receiver}
-                    </Typography>
-                  </TableCell>
-                  <TableCell size="small">{amount}</TableCell>
-                  <TableCell size="small">{fee}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[10, 25, 100]}
-          component="div"
-          count={count}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onChangePage={handleChangePage}
-          onChangeRowsPerPage={handleChangeRowsPerPage}
-        />
+        {rows.length ? (
+          <>
+            <TableContainer component={Paper}>
+              <Table aria-label="simple table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Txn Hash</TableCell>
+                    <TableCell>Block Hash</TableCell>
+                    <TableCell>Date</TableCell>
+                    <TableCell>From</TableCell>
+                    <TableCell>To</TableCell>
+                    <TableCell>Value</TableCell>
+                    <TableCell>Txn Fee</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {rows.map(
+                    ({ amount, block, hash, sender, receiver, fee }) => (
+                      <TableRow key={hash}>
+                        <TableCell size="small">
+                          <Typography variant="body2" display="block" noWrap>
+                            {hash}
+                          </Typography>
+                        </TableCell>
+                        <TableCell size="small">
+                          <Typography variant="body2" display="block" noWrap>
+                            {block}
+                          </Typography>
+                        </TableCell>
+                        <TableCell size="small">
+                          {/*`${moment
+                            .duration(moment.now())
+                            .humanize()} ago`*/}
+                        </TableCell>
+                        <TableCell size="small">
+                          <Typography variant="body2" display="block" noWrap>
+                            {sender}
+                          </Typography>
+                        </TableCell>
+                        <TableCell size="small">
+                          <Typography variant="body2" display="block" noWrap>
+                            {receiver}
+                          </Typography>
+                        </TableCell>
+                        <TableCell size="small">{amount}</TableCell>
+                        <TableCell size="small">{fee}</TableCell>
+                      </TableRow>
+                    )
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <TablePagination
+              rowsPerPageOptions={[10, 25, 100]}
+              component="div"
+              count={count}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onChangePage={handleChangePage}
+              onChangeRowsPerPage={handleChangeRowsPerPage}
+            />
+          </>
+        ) : (
+          count === 0 && <Typography component="h6">No results.</Typography>
+        )}
       </Box>
     </>
   );
