@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useLocation, useHistory, Link as RouterLink } from 'react-router-dom';
-import 'moment/min/locales';
 import qs from 'qs';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
@@ -14,10 +13,10 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Box from '@material-ui/core/Box';
-import Skeleton from '@material-ui/lab/Skeleton';
 import Link from '@material-ui/core/Link';
+import Skeleton from '@material-ui/lab/Skeleton';
+import ActivityIndicator from '~components/ActivityIndicator';
 import SearchForm from '~features/transactions/SearchForm';
-
 import {
   fetchTransactions,
   Transaction,
@@ -100,12 +99,17 @@ export default () => {
 
   useEffect(() => {
     setPending(true);
-    fetchTransactions({
-      startAt,
-      endAt,
-      keys,
+    fetchTransactions(
       term
-    }).then(payload => {
+        ? {
+            keys,
+            term
+          }
+        : {
+            startAt,
+            endAt
+          }
+    ).then(payload => {
       setPending(false);
       setTransactionResult(payload);
     });
@@ -250,9 +254,7 @@ export default () => {
       )}
       <Box>
         {!isSingleTransaction &&
-          (isPending ? (
-            <div>Fetching transactions...</div>
-          ) : rows.length > 0 ? (
+          (!isPending && rows.length > 0 ? (
             <>
               <TableContainer component={Paper}>
                 <Table aria-label="Transaction Results">
@@ -339,7 +341,9 @@ export default () => {
               )}
             </>
           ) : (
-            <Typography component="span">No transactions found.</Typography>
+            <ActivityIndicator pending={isPending}>
+              {isPending ? <>Fetching transactions...</> : <>No results</>}
+            </ActivityIndicator>
           ))}
       </Box>
     </>

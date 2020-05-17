@@ -1,18 +1,22 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useHistory, Link as RouterLink } from 'react-router-dom';
 import qs from 'qs';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
-import Typography from '@material-ui/core/Typography';
-import Paper from '@material-ui/core/Paper';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Box from '@material-ui/core/Box';
-import Link from '@material-ui/core/Link';
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Link,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography
+} from '@material-ui/core';
+import { ActivityIndicator } from '~components';
 import SearchForm from '~features/transactions/SearchForm';
 import {
   PagedResult,
@@ -30,18 +34,42 @@ export default () => {
     location
   ]);
   const { term, keys } = params;
-  const [{ rows: blocks }, setBlockResult] = useState<PagedResult<Block>>({
+
+  const [isBlocksPending, setBlocksPending] = useState<boolean>(false);
+  const [blocksPerPage, setBlocksPerPage] = useState<number>(9);
+  const [{ rows: blocks, count: blockCount }, setBlockResult] = useState<
+    PagedResult<Block>
+  >({
     rows: [],
     count: 0
   });
-  const [{ rows: transactions }, setTransactionResult] = useState<
-    PagedResult<Transaction>
-  >({ rows: [], count: 0 });
+
+  const [isTransactionsPending, setTransactionsPending] = useState<boolean>(
+    false
+  );
+  const [transactionsPerPage, setTransactionsPerPage] = useState<number>(9);
+  const [
+    { rows: transactions, count: txCount },
+    setTransactionResult
+  ] = useState<PagedResult<Transaction>>({ rows: [], count: 0 });
 
   useEffect(() => {
-    fetchBlocks({ startAt: 0, endAt: 9 }).then(setBlockResult);
-    fetchTransactions({ startAt: 0, endAt: 9 }).then(setTransactionResult);
-  }, []);
+    setBlocksPending(true);
+    fetchBlocks({ startAt: 0, endAt: blocksPerPage }).then(payload => {
+      setBlocksPending(false);
+      setBlockResult(payload);
+    });
+  }, [blocksPerPage]);
+
+  useEffect(() => {
+    setTransactionsPending(true);
+    fetchTransactions({ startAt: 0, endAt: transactionsPerPage }).then(
+      payload => {
+        setTransactionResult(payload);
+        setTransactionsPending(false);
+      }
+    );
+  }, [transactionsPerPage]);
 
   const handleSearch = ({ term, keys }: SearchParams<Transaction>) => {
     history.push({
@@ -64,29 +92,90 @@ export default () => {
       </Box>
       <Box display="flex" m={-2}>
         <Box flexGrow={1} p={2}>
-          <TableContainer component={Paper}>
-            <Box p={1}>
-              <Typography variant="h6" component="h3">
-                Latest Blocks
-              </Typography>
-            </Box>
-            <Table aria-label="Latest Blocks Results">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Height</TableCell>
-                  <TableCell>Hash</TableCell>
-                  <TableCell>Amount</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {blocks.map(
-                  ({ hash, aggr: { dagAmount, txCount }, height }) => (
+          <Paper>
+            <TableContainer>
+              <Box p={1}>
+                <Typography variant="h6" component="h3">
+                  Latest Blocks
+                </Typography>
+              </Box>
+              <Table aria-label="Latest Blocks Results">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Height</TableCell>
+                    <TableCell>Hash</TableCell>
+                    <TableCell>Amount</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {blocks.map(
+                    ({ hash, aggr: { dagAmount, txCount }, height }) => (
+                      <TableRow key={hash}>
+                        <TableCell size="small">
+                          <Typography variant="body2" display="block" noWrap>
+                            {height}
+                          </Typography>
+                        </TableCell>
+                        <TableCell size="small">
+                          <Typography variant="body2" display="block" noWrap>
+                            <Link
+                              component={RouterLink}
+                              to={`/transactions?${qs.stringify({
+                                term: hash
+                              })}`}
+                            >
+                              {hash}
+                            </Link>
+                          </Typography>
+                        </TableCell>
+                        <TableCell size="small">
+                          <Typography variant="body2" display="block" noWrap>
+                            {dagAmount} DAG
+                          </Typography>
+                          <Typography variant="body2" display="block" noWrap>
+                            {txCount} Transactions
+                          </Typography>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            {blocks.length < blockCount && (
+              <Box p={2} display="flex" justifyContent="center">
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={() => setBlocksPerPage(blocksPerPage + 10)}
+                >
+                  <ActivityIndicator pending={isBlocksPending}>
+                    Load more
+                  </ActivityIndicator>
+                </Button>
+              </Box>
+            )}
+          </Paper>
+        </Box>
+        <Box flexGrow={1} p={2}>
+          <Paper>
+            <TableContainer>
+              <Box p={1}>
+                <Typography variant="h6" component="h3">
+                  Latest Transactions
+                </Typography>
+              </Box>
+              <Table aria-label="Latest Transactions Results">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Hash</TableCell>
+                    <TableCell>From / To</TableCell>
+                    <TableCell>Value</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {transactions.map(({ hash, sender, receiver, amount }) => (
                     <TableRow key={hash}>
-                      <TableCell size="small">
-                        <Typography variant="body2" display="block" noWrap>
-                          {height}
-                        </Typography>
-                      </TableCell>
                       <TableCell size="small">
                         <Typography variant="body2" display="block" noWrap>
                           <Link
@@ -99,79 +188,54 @@ export default () => {
                       </TableCell>
                       <TableCell size="small">
                         <Typography variant="body2" display="block" noWrap>
-                          {dagAmount} DAG
+                          From:{' '}
+                          <Link
+                            component={RouterLink}
+                            to={`/transactions?${qs.stringify({
+                              term: sender
+                            })}`}
+                          >
+                            {sender}
+                          </Link>
                         </Typography>
                         <Typography variant="body2" display="block" noWrap>
-                          {txCount} Transactions
+                          To:{' '}
+                          <Link
+                            component={RouterLink}
+                            to={`/transactions?${qs.stringify({
+                              term: receiver
+                            })}`}
+                          >
+                            {receiver}
+                          </Link>
+                        </Typography>
+                      </TableCell>
+                      <TableCell size="small">
+                        <Typography variant="body2" display="block" noWrap>
+                          {amount} DAG
                         </Typography>
                       </TableCell>
                     </TableRow>
-                  )
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Box>
-        <Box flexGrow={1} p={2}>
-          <TableContainer component={Paper}>
-            <Box p={1}>
-              <Typography variant="h6" component="h3">
-                Latest Transactions
-              </Typography>
-            </Box>
-            <Table aria-label="Latest Transactions Results">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Hash</TableCell>
-                  <TableCell>From / To</TableCell>
-                  <TableCell>Value</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {transactions.map(({ hash, sender, receiver, amount }) => (
-                  <TableRow key={hash}>
-                    <TableCell size="small">
-                      <Typography variant="body2" display="block" noWrap>
-                        <Link
-                          component={RouterLink}
-                          to={`/transactions?${qs.stringify({ term: hash })}`}
-                        >
-                          {hash}
-                        </Link>
-                      </Typography>
-                    </TableCell>
-                    <TableCell size="small">
-                      <Typography variant="body2" display="block" noWrap>
-                        From:{' '}
-                        <Link
-                          component={RouterLink}
-                          to={`/transactions?${qs.stringify({ term: sender })}`}
-                        >
-                          {sender}
-                        </Link>
-                      </Typography>
-                      <Typography variant="body2" display="block" noWrap>
-                        To:{' '}
-                        <Link
-                          component={RouterLink}
-                          to={`/transactions?${qs.stringify({
-                            term: receiver
-                          })}`}
-                        >
-                          {receiver}
-                        </Link>
-                      </Typography>
-                    </TableCell>
-                    <TableCell size="small">
-                      <Typography variant="body2" display="block" noWrap>
-                        {amount} DAG
-                      </Typography>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            {transactions.length < txCount && (
+              <Box p={2} display="flex" justifyContent="center">
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={() =>
+                    setTransactionsPerPage(transactionsPerPage + 10)
+                  }
+                >
+                  <ActivityIndicator pending={isTransactionsPending}>
+                    Load more
+                  </ActivityIndicator>
+                </Button>
+              </Box>
+            )}
+          </Paper>
         </Box>
       </Box>
     </>

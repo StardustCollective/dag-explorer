@@ -14,6 +14,7 @@ import * as Icon from '@material-ui/icons';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
+import Container from '@material-ui/core/Container';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import {
   App,
@@ -127,11 +128,17 @@ export default () => {
           </Toolbar>
         </AppBar>
         <Content>
-          <Switch>
-            <Route path="/" exact={true} component={Dashboard} />
-            <Route path="/transactions" exact={true} component={Transactions} />
-            <Route path="/about" exact={true} component={About} />
-          </Switch>
+          <Container>
+            <Switch>
+              <Route path="/" exact={true} component={Dashboard} />
+              <Route
+                path="/transactions"
+                exact={true}
+                component={Transactions}
+              />
+              <Route path="/about" exact={true} component={About} />
+            </Switch>
+          </Container>
         </Content>
       </Main>
     </App>
