@@ -74,9 +74,9 @@
     "webpack-dev-server": "^3.10.3"
   },
   "scripts": {
-    "start": "webpack-dev-server -w --config ./webpack.config.js --output-public-path /star-gazer/ --output-public-routes $npm_package_webpack_routes",
-    "build": "cross-env NODE_ENV=production webpack --config ./webpack.config.js --output-public-path /star-gazer/ --output-public-routes $npm_package_webpack_routes",
-    "build:dev": "cross-env NODE_ENV=development webpack --config ./webpack.config.js --output-public-path /star-gazer/ --output-public-routes $npm_package_webpack_routes",
+    "start": "webpack-dev-server -w --config ./webpack.config.js --output-public-path /dag-explorer/ --output-public-routes $npm_package_webpack_routes",
+    "build": "cross-env NODE_ENV=production webpack --config ./webpack.config.js --output-public-path /dag-explorer/ --output-public-routes $npm_package_webpack_routes",
+    "build:dev": "cross-env NODE_ENV=development webpack --config ./webpack.config.js --output-public-path /dag-explorer/ --output-public-routes $npm_package_webpack_routes",
     "dev": "npx styleguidist server --config ./styleguide.config.js --port 6060",
     "docs": "npx styleguidist build --config ./styleguide.config.js",
     "lint": "eslint src/**/**/*.{ts,tsx}",
