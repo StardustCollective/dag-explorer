@@ -8,6 +8,7 @@
   "dependencies": {
     "@material-ui/core": "^4.9.12",
     "@material-ui/icons": "^4.9.1",
+    "@material-ui/lab": "^4.0.0-alpha.53",
     "@material-ui/styles": "^4.9.10",
     "@openfonts/poppins_all": "^1.44.4",
     "material-ui-popup-state": "^1.5.4",

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useLocation, useHistory } from 'react-router-dom';
+import { useLocation, useHistory, Link as RouterLink } from 'react-router-dom';
 import qs from 'qs';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
@@ -12,6 +12,7 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Box from '@material-ui/core/Box';
+import Link from '@material-ui/core/Link';
 import SearchForm from '~features/transactions/SearchForm';
 import {
   PagedResult,
@@ -69,7 +70,7 @@ export default () => {
                 Latest Blocks
               </Typography>
             </Box>
-            <Table aria-label="simple table">
+            <Table aria-label="Latest Blocks Results">
               <TableHead>
                 <TableRow>
                   <TableCell>Height</TableCell>
@@ -88,7 +89,12 @@ export default () => {
                       </TableCell>
                       <TableCell size="small">
                         <Typography variant="body2" display="block" noWrap>
-                          {hash}
+                          <Link
+                            component={RouterLink}
+                            to={`/transactions?${qs.stringify({ term: hash })}`}
+                          >
+                            {hash}
+                          </Link>
                         </Typography>
                       </TableCell>
                       <TableCell size="small">
@@ -113,7 +119,7 @@ export default () => {
                 Latest Transactions
               </Typography>
             </Box>
-            <Table aria-label="simple table">
+            <Table aria-label="Latest Transactions Results">
               <TableHead>
                 <TableRow>
                   <TableCell>Hash</TableCell>
@@ -126,15 +132,34 @@ export default () => {
                   <TableRow key={hash}>
                     <TableCell size="small">
                       <Typography variant="body2" display="block" noWrap>
-                        {hash}
+                        <Link
+                          component={RouterLink}
+                          to={`/transactions?${qs.stringify({ term: hash })}`}
+                        >
+                          {hash}
+                        </Link>
                       </Typography>
                     </TableCell>
                     <TableCell size="small">
                       <Typography variant="body2" display="block" noWrap>
-                        From: {sender}
+                        From:{' '}
+                        <Link
+                          component={RouterLink}
+                          to={`/transactions?${qs.stringify({ term: sender })}`}
+                        >
+                          {sender}
+                        </Link>
                       </Typography>
                       <Typography variant="body2" display="block" noWrap>
-                        To: {receiver}
+                        To:{' '}
+                        <Link
+                          component={RouterLink}
+                          to={`/transactions?${qs.stringify({
+                            term: receiver
+                          })}`}
+                        >
+                          {receiver}
+                        </Link>
                       </Typography>
                     </TableCell>
                     <TableCell size="small">
