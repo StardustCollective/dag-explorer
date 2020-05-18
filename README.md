@@ -1,5 +1,5 @@
-# star-gazer
-Star Gazer is a Block Explorer and Analytics tool for the Constellation Hypergraph Network.
+# DAG Explorer
+Block Explorer for the Constellation Hypergraph Network.
 
 
 ## Install
