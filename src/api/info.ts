@@ -1,5 +1,4 @@
 import { Observable } from 'rxjs';
-import { AppEnv } from '../app-env';
 import { firebaseService } from '~firebase/firebase.service';
 
 export type Info = {
@@ -7,6 +6,7 @@ export type Info = {
   txCount: number;
   cacheJobStatus: string;
   blockHeight: number;
+  timestamp: number;
 };
 
 // export const fetchInfo = async (): Promise<Info> => {
