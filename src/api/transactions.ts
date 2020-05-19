@@ -1,5 +1,7 @@
 import qs from 'qs';
-import { PagedResult, SearchParams, PagedParams, fetchInfo } from '.';
+import { PagedResult, SearchParams, PagedParams } from '.';
+import { AppEnv } from '../app-env';
+import { latestInfo } from '~api/latest-info';
 
 export type Transaction = {
   amount: number;
@@ -16,16 +18,21 @@ export const fetchTransactions = async (
 ): Promise<PagedResult<Transaction>> => {
   const filterKeys = ['block', 'hash', 'address'];
   const { startAt = 0, endAt = 9, term, keys = [] } = params || {};
-  const requestKeys = term ? (keys.length ? keys : filterKeys) : ['$key'];
+  let requestKeys = ['$key'];
+  if (term) {
+    if (term.indexOf('DAG') === 0) {
+      requestKeys = ['address'];
+    } else {
+      requestKeys = keys.length ? keys : filterKeys;
+    }
+  }
   const requests = requestKeys.map(key => {
     if (key === 'address') {
       const queryString = `?${qs.stringify({
         address: term
       })}`;
 
-      return fetch(
-        `https://www.stargazer.network/api/v1/transactions${queryString}`
-      );
+      return fetch(`${AppEnv.STAR_GAZER_API}/transactions${queryString}`);
     }
 
     const params = Object.assign(
@@ -43,7 +50,7 @@ export const fetchTransactions = async (
     const queryString = `?${qs.stringify(params)}`;
 
     return fetch(
-      `https://stargazer-4497c.firebaseio.com/latest/transactions.json${queryString}`
+      `${AppEnv.DAG_EXPLORER_API}/latest/transactions.json${queryString}`
     ).catch(() => null);
   });
 
@@ -68,9 +75,7 @@ export const fetchTransactions = async (
     })
   );
 
-  const { txCount } = await fetchInfo();
-
-  const count = term ? rows.length : txCount;
+  const count = term ? rows.length : latestInfo.txCount;
 
   return { rows, count };
 };

@@ -5,6 +5,13 @@
 /dist
 /docs
 
+# Firebase cache
+.firebase/
+
+# Firebase config
+.firebaserc
+firebase.json
+
 # misc
 .idea
 .awcache

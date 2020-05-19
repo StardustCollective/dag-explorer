@@ -91,26 +91,26 @@ export default () => {
   return (
     <App>
       <CssBaseline />
-      <Sidebar>
-        <Drawer
-          {...(matchesSmUp
-            ? {
-                variant: 'permanent',
-                open: true
-              }
-            : {
-                variant: 'temporary',
-                anchor: theme.direction === 'rtl' ? 'right' : 'left',
-                open: mobileOpen,
-                onClose: handleDrawerToggle,
-                ModalProps: {
-                  keepMounted: true
-                }
-              })}
-        >
-          {drawer}
-        </Drawer>
-      </Sidebar>
+      {/*<Sidebar>*/}
+      {/*  <Drawer*/}
+      {/*    {...(matchesSmUp*/}
+      {/*      ? {*/}
+      {/*          variant: 'permanent',*/}
+      {/*          open: true*/}
+      {/*        }*/}
+      {/*      : {*/}
+      {/*          variant: 'temporary',*/}
+      {/*          anchor: theme.direction === 'rtl' ? 'right' : 'left',*/}
+      {/*          open: mobileOpen,*/}
+      {/*          onClose: handleDrawerToggle,*/}
+      {/*          ModalProps: {*/}
+      {/*            keepMounted: true*/}
+      {/*          }*/}
+      {/*        })}*/}
+      {/*  >*/}
+      {/*    {drawer}*/}
+      {/*  </Drawer>*/}
+      {/*</Sidebar>*/}
       <Main>
         <AppBar position="sticky" color="inherit">
           <Toolbar>
@@ -130,7 +130,7 @@ export default () => {
         <Content>
           <Container>
             <Switch>
-              <Route path="/" exact={true} component={Dashboard} />
+              <Route path="/" exact={true} component={Dashboard}></Route>
               <Route
                 path="/transactions"
                 exact={true}
