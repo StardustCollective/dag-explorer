@@ -175,7 +175,7 @@ module.exports = (env = {}, argv = {}) => {
           inject: true,
           filename: `${route}index.html`,
           showErrors: true,
-          title: 'Star Gazer',
+          title: 'DAG Explorer',
           path: dist,
           hash: true,
           base: publicPath,

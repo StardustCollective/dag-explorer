@@ -12,6 +12,7 @@
     "jsx": "react",
     "allowJs": true,
     "checkJs": false,
+    "importHelpers": true,
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,

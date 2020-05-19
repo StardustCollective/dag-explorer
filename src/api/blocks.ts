@@ -1,5 +1,7 @@
 import qs from 'qs';
-import { PagedResult, PagedParams, fetchInfo } from '.';
+import { PagedResult, PagedParams, Info } from '.';
+import { AppEnv } from '../app-env';
+import { latestInfo } from '~api/latest-info';
 
 export type Aggregation = {
   dagAmount: number;
@@ -37,10 +39,9 @@ export const fetchBlocks = async (
   }
 
   const response = await fetch(
-    `https://stargazer-4497c.firebaseio.com/latest/blocks.json${queryString}`
+    `${AppEnv.DAG_EXPLORER_API}/latest/blocks.json${queryString}`
   );
   const rows = await response.json();
-  const { blockCount: count } = await fetchInfo();
 
-  return { rows: Object.values(rows), count };
+  return { rows: Object.values(rows), count: latestInfo.blockCount };
 };

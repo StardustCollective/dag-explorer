@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useHistory, Link as RouterLink } from 'react-router-dom';
 import qs from 'qs';
+import { Subscription } from 'rxjs';
 import {
   Box,
   Button,
@@ -24,8 +25,11 @@ import {
   Transaction,
   SearchParams,
   fetchBlocks,
-  fetchTransactions
+  observeInfo,
+  fetchTransactions,
+  Info
 } from '~api';
+import { latestInfo } from '~api/latest-info';
 
 export default () => {
   const location = useLocation();
@@ -37,6 +41,8 @@ export default () => {
 
   const [isBlocksPending, setBlocksPending] = useState<boolean>(false);
   const [blocksPerPage, setBlocksPerPage] = useState<number>(9);
+  const [snapshotHeight, setSnapshotHeight] = useState<number>(-1);
+  const [cleanupInfo, setCleanupState] = useState<boolean>(false);
   const [{ rows: blocks, count: blockCount }, setBlockResult] = useState<
     PagedResult<Block>
   >({
@@ -53,23 +59,42 @@ export default () => {
     setTransactionResult
   ] = useState<PagedResult<Transaction>>({ rows: [], count: 0 });
 
-  useEffect(() => {
-    setBlocksPending(true);
-    fetchBlocks({ startAt: 0, endAt: blocksPerPage }).then(payload => {
-      setBlocksPending(false);
-      setBlockResult(payload);
-    });
-  }, [blocksPerPage]);
+  let infoSubscription: Subscription;
 
   useEffect(() => {
-    setTransactionsPending(true);
-    fetchTransactions({ startAt: 0, endAt: transactionsPerPage }).then(
-      payload => {
-        setTransactionResult(payload);
-        setTransactionsPending(false);
-      }
-    );
-  }, [transactionsPerPage]);
+    if (!infoSubscription) {
+      infoSubscription = observeInfo().subscribe(info => {
+        latestInfo.update(info);
+        setSnapshotHeight(info.blockHeight);
+      });
+    }
+
+    return function cleanup() {
+      infoSubscription.unsubscribe();
+    };
+  }, [cleanupInfo]);
+
+  useEffect(() => {
+    if (snapshotHeight > 0) {
+      setBlocksPending(true);
+      fetchBlocks({ startAt: 0, endAt: blocksPerPage }).then(payload => {
+        setBlocksPending(false);
+        setBlockResult(payload);
+      });
+    }
+  }, [blocksPerPage, snapshotHeight]);
+
+  useEffect(() => {
+    if (snapshotHeight > 0) {
+      setTransactionsPending(true);
+      fetchTransactions({ startAt: 0, endAt: transactionsPerPage }).then(
+        payload => {
+          setTransactionResult(payload);
+          setTransactionsPending(false);
+        }
+      );
+    }
+  }, [transactionsPerPage, snapshotHeight]);
 
   const handleSearch = ({ term, keys }: SearchParams<Transaction>) => {
     history.push({

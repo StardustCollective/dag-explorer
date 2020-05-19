@@ -11,6 +11,7 @@
     "@material-ui/lab": "^4.0.0-alpha.53",
     "@material-ui/styles": "^4.9.10",
     "@openfonts/poppins_all": "^1.44.4",
+    "firebase": "^7.14.4",
     "material-ui-popup-state": "^1.5.4",
     "moment": "^2 <2.25 || ^2 >2.25",
     "moment-timezone": "^0.5.26",
@@ -74,8 +75,8 @@
     "webpack-dev-server": "^3.10.3"
   },
   "scripts": {
-    "start": "webpack-dev-server -w --config ./webpack.config.js --output-public-path /dag-explorer/ --output-public-routes $npm_package_webpack_routes",
-    "build": "cross-env NODE_ENV=production webpack --config ./webpack.config.js --output-public-path /dag-explorer/ --output-public-routes $npm_package_webpack_routes",
+    "start": "webpack-dev-server -w --config ./webpack.config.js --output-public-routes $npm_package_webpack_routes",
+    "build": "cross-env NODE_ENV=production webpack --config ./webpack.config.js --output-public-routes $npm_package_webpack_routes",
     "build:dev": "cross-env NODE_ENV=development webpack --config ./webpack.config.js --output-public-path /dag-explorer/ --output-public-routes $npm_package_webpack_routes",
     "dev": "npx styleguidist server --config ./styleguide.config.js --port 6060",
     "docs": "npx styleguidist build --config ./styleguide.config.js",
@@ -83,7 +84,8 @@
     "lint:fix": "yarn lint --fix",
     "deploy:push": "gh-pages -d dist",
     "clean": "rm -rf dist",
-    "deploy": "run-s build deploy:push clean"
+    "deploy": "run-s build:dev deploy:push clean",
+    "build:prod": "run-s clean build"
   },
   "lint-staged": {
     "src/**/*.{json,css}": [

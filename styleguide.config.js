@@ -3,7 +3,7 @@ const { parse } = require('react-docgen-typescript');
 const webpackConfig = require('./webpack.config');
 
 module.exports = {
-  title: 'Star Gazer',
+  title: 'DAG Explorer',
   pagePerSection: true,
   skipComponentsWithoutExample: true,
   ignore: [
