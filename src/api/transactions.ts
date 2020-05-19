@@ -20,7 +20,7 @@ export const fetchTransactions = async (
   const { startAt = 0, endAt = 9, term, keys = [] } = params || {};
   let requestKeys = ['$key'];
   if (term) {
-    if (term.indexOf('DAG') === 0) {
+    if (term.startsWith('DAG')) {
       requestKeys = ['address'];
     } else {
       requestKeys = keys.length ? keys : filterKeys;
