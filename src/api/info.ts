@@ -9,13 +9,6 @@ export type Info = {
   timestamp: number;
 };
 
-// export const fetchInfo = async (): Promise<Info> => {
-//   const response = await fetch(
-//     `${AppEnv.DAG_EXPLORER_API}/info.json`
-//   );
-//   return await response.json();
-// };
-
 export const observeInfo = (): Observable<Info> => {
   return firebaseService.observeObject<Info>('/app/info');
 };
