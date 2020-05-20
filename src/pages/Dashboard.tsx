@@ -76,7 +76,6 @@ export default () => {
 
   useEffect(() => {
     if (snapshotHeight > 0) {
-      setBlocksPending(true);
       fetchBlocks({ startAt: 0, endAt: blocksPerPage }).then(payload => {
         setBlocksPending(false);
         setBlockResult(payload);
@@ -172,7 +171,10 @@ export default () => {
                 <Button
                   variant="contained"
                   color="secondary"
-                  onClick={() => setBlocksPerPage(blocksPerPage + 10)}
+                  onClick={() => {
+                    setBlocksPending(true);
+                    setBlocksPerPage(blocksPerPage + 10);
+                  }}
                 >
                   <ActivityIndicator pending={isBlocksPending}>
                     Load more
@@ -250,9 +252,10 @@ export default () => {
                 <Button
                   variant="contained"
                   color="secondary"
-                  onClick={() =>
-                    setTransactionsPerPage(transactionsPerPage + 10)
-                  }
+                  onClick={() => {
+                    setTransactionsPending(true);
+                    setTransactionsPerPage(transactionsPerPage + 10);
+                  }}
                 >
                   <ActivityIndicator pending={isTransactionsPending}>
                     Load more

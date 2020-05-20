@@ -36,6 +36,16 @@ export default createMuiTheme({
         minWidth: '120px'
       }
     },
+    MuiAppBar: {
+      root: {
+        background: '#F2F2F2',
+        '& .MuiListItemIcon-root': {
+          color: 'inherit',
+          margin: '0 1rem 0 0',
+          minWidth: 'auto'
+        }
+      }
+    },
     MuiDrawer: {
       paperAnchorDockedLeft: {
         borderRight: 0
@@ -78,11 +88,6 @@ export default createMuiTheme({
         background: '#F7F5F3',
         borderTop: '1px solid #F2EDE6',
         borderBottom: '1px solid #F2EDE6'
-      }
-    },
-    MuiAppBar: {
-      root: {
-        background: '#F2F2F2'
       }
     }
   }

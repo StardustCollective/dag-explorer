@@ -127,7 +127,7 @@ export default () => {
           </CardContent>
         </Card>
       </Box>
-      {isAddress && (
+      {isAddress ? (
         <Box mb={2}>
           <Card>
             <CardContent>
@@ -165,8 +165,8 @@ export default () => {
             </CardContent>
           </Card>
         </Box>
-      )}
-      {isBlock && (
+      ) : null}
+      {isBlock ? (
         <Box mb={2}>
           <Card>
             <CardContent>
@@ -193,8 +193,8 @@ export default () => {
             </CardContent>
           </Card>
         </Box>
-      )}
-      {isSingleTransaction && (
+      ) : null}
+      {isSingleTransaction ? (
         <Box mb={2}>
           <Card>
             <CardContent>
@@ -251,7 +251,7 @@ export default () => {
             </CardContent>
           </Card>
         </Box>
-      )}
+      ) : null}
       <Box>
         {!isSingleTransaction &&
           (!isPending && rows.length > 0 ? (

@@ -1,5 +1,9 @@
-import styled from 'styled-components';
-import MuiListItem from '@material-ui/core/ListItem';
+import styled, { css } from 'styled-components';
+import {
+  List as MuiList,
+  ListItem as MuiListItem,
+  ListProps as MuiListProps
+} from '@material-ui/core';
 import { shapeSrc } from '~assets';
 
 export const Sidebar = styled.div`
@@ -23,22 +27,44 @@ export const Shape = styled.img.attrs(() => ({
   object-fit: contain;
 `;
 
-export const ListItem = styled(MuiListItem)`
-  &:after {
-    content: '';
-    width: 0;
-    height: 0;
-    border-style: solid;
-    border-width: 16px 20px 16px 0;
-    border-color: transparent ${({ theme }) => theme.palette.background.default}
-      transparent transparent;
-    transition: all 0.25s ease-out;
-    transform: translateX(100%);
-  }
+export type ListProps = MuiListProps & {
+  horizontal?: boolean;
+};
 
-  &.Mui-selected {
+export const List = styled(MuiList).attrs(
+  ({ horizontal, disablePadding }: ListProps) => ({
+    disablePadding:
+      disablePadding === undefined && horizontal ? true : disablePadding
+  })
+)<ListProps>`
+  ${({ horizontal }) =>
+    horizontal &&
+    css`
+      display: flex;
+      flex-direction: row;
+      height: 100%;
+    `}
+`;
+
+export const ListItem = styled(MuiListItem)<MuiListProps>`
+  ${Sidebar} & {
     &:after {
-      transform: translateX(0);
+      content: '';
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 16px 20px 16px 0;
+      border-color: transparent
+        ${({ theme }) => theme.palette.background.default} transparent
+        transparent;
+      transition: all 0.25s ease-out;
+      transform: translateX(100%);
+    }
+
+    &.Mui-selected {
+      &:after {
+        transform: translateX(0);
+      }
     }
   }
 ` as typeof MuiListItem;
