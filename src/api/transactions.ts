@@ -2,28 +2,19 @@ import qs from 'qs';
 import { PagedResult, SearchParams, PagedParams } from '.';
 import { AppEnv } from '../app-env';
 import { latestInfo } from '~api/latest-info';
-
-export type Transaction = {
-  amount: number;
-  block: string;
-  fee: number;
-  hash: string;
-  isDummy?: boolean;
-  receiver: string;
-  sender: string;
-};
+import { TransactionInfo } from '~api/types';
 
 export const fetchTransactions = async (
-  params?: SearchParams<Transaction> & PagedParams
-): Promise<PagedResult<Transaction>> => {
+  params?: SearchParams<TransactionInfo> & PagedParams
+): Promise<PagedResult<TransactionInfo>> => {
   const filterKeys = ['block', 'hash', 'address'];
-  const { startAt = 0, endAt = 9, term, keys = [] } = params || {};
+  const { startAt = 0, endAt = 9, term } = params || {};
   let requestKeys = ['$key'];
   if (term) {
     if (term.startsWith('DAG')) {
       requestKeys = ['address'];
     } else {
-      requestKeys = keys.length ? keys : filterKeys;
+      requestKeys = filterKeys;
     }
   }
   const requests = requestKeys.map(key => {
@@ -50,7 +41,7 @@ export const fetchTransactions = async (
     const queryString = `?${qs.stringify(params)}`;
 
     return fetch(
-      `${AppEnv.DAG_EXPLORER_API}/latest/transactions.json${queryString}`
+      `${AppEnv.DAG_EXPLORER_REST}/latest/transactions.json${queryString}`
     ).catch(() => null);
   });
 
@@ -64,7 +55,7 @@ export const fetchTransactions = async (
     .map(rows => Object.values(rows))
     .reduce((result, current) =>
       current.length > result.length ? current : result
-    ) as (Transaction & {
+    ) as (TransactionInfo & {
     checkpointBlock?: string;
   })[];
 

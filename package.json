@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "webpack": {
-    "routes": "transactions,about"
+    "routes": "search,transactions,about"
   },
   "dependencies": {
     "@material-ui/core": "^4.9.12",

@@ -1,30 +1,12 @@
 import qs from 'qs';
-import { PagedResult, PagedParams, Info } from '.';
+import { PagedResult, PagedParams } from '.';
 import { AppEnv } from '../app-env';
 import { latestInfo } from '~api/latest-info';
-
-export type Aggregation = {
-  dagAmount: number;
-  feeAmount: number;
-  txCount: 3;
-};
-
-export type Range = {
-  min: number;
-  max: number;
-};
-
-export type Block = {
-  aggr: Aggregation;
-  childCount: number;
-  hash: string;
-  height: number;
-  range: Range;
-};
+import { BlockInfo } from '~api/types';
 
 export const fetchBlocks = async (
   params?: PagedParams
-): Promise<PagedResult<Block>> => {
+): Promise<PagedResult<BlockInfo>> => {
   let queryString = '';
 
   if (params) {
@@ -39,7 +21,7 @@ export const fetchBlocks = async (
   }
 
   const response = await fetch(
-    `${AppEnv.DAG_EXPLORER_API}/latest/blocks.json${queryString}`
+    `${AppEnv.DAG_EXPLORER_REST}/latest/blocks.json${queryString}`
   );
   const rows = await response.json();
 

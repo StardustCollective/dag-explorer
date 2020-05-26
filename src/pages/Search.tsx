@@ -4,7 +4,6 @@ import qs from 'qs';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
-import TablePagination from '@material-ui/core/TablePagination';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -19,13 +18,9 @@ import { IconButton } from '@material-ui/core';
 import { ArrowBack } from '@material-ui/icons';
 import ActivityIndicator from '~components/ActivityIndicator';
 import SearchForm from '~features/transactions/SearchForm';
-import {
-  fetchTransactions,
-  PagedResult,
-  SearchParams,
-  fetchAddress
-} from '~api';
-import { AddressInfo, TransactionInfo } from '~api/types';
+import { SearchParams } from '~api';
+import { searchRequest } from '~api/search';
+import { AddressInfo, BlockInfo, TransactionInfo } from '~api/types';
 
 export default () => {
   const location = useLocation();
@@ -33,76 +28,45 @@ export default () => {
   const params = useMemo(() => qs.parse(location.search.replace(/^\?/, '')), [
     location
   ]);
-  const { startAt = 0, endAt = 9, term } = params;
-  const rowsPerPage = +endAt - +startAt + 1;
+  const { term } = params;
   const [isPending, setPending] = useState<boolean>(true);
-  const [transactionResult, setTransactionResult] = useState<PagedResult<
-    TransactionInfo
-  > | null>(null);
-  const { rows = [], count = -1 } = transactionResult || {};
-  const [address, setAddress] = useState<AddressInfo | null>();
-  const page = count ? ~~(+startAt / rowsPerPage) : 0;
+  const [rows, setTransactionResult] = useState<TransactionInfo[]>([]);
+  // const { rows = [], count = -1 } = transactionResult || {};
+  const [address, setAddress] = useState<AddressInfo | null>(null);
+  const [block, setBlock] = useState<BlockInfo | null>(null);
 
-  const isAddress = useMemo(
-    () =>
-      term &&
-      count === rows.length &&
-      rows.every(row => row.sender === term || row.receiver === term),
-    [term, count, rows]
-  );
-  const isBlock = useMemo(
-    () =>
-      term &&
-      count === rows.length &&
-      rows.length &&
-      rows.every(transaction => transaction.block === term),
-    [term, count, rows]
-  );
-  const block = isBlock ? { hash: term } : null;
-  const isSingleTransaction =
-    term && !isAddress && !isBlock && rows.length === 1;
+  const isSingleTransaction = term && !address && !block && rows.length === 1;
   const transaction = isSingleTransaction ? rows[0] : null;
 
-  const handleChangePage = (
-    _: React.MouseEvent<HTMLButtonElement, MouseEvent> | null,
-    nextPage: number
-  ) => {
-    history.push({
-      search: qs.stringify({
-        term,
-        startAt: nextPage * rowsPerPage,
-        endAt: nextPage * rowsPerPage + rowsPerPage
-      })
-    });
+  const handleSearch = ({ term }: SearchParams<TransactionInfo>) => {
+    history.push({ search: qs.stringify({ term }) });
   };
-
-  const handleChangeRowsPerPage = ({
-    target: { value }
-  }: React.ChangeEvent<HTMLInputElement>) => {
-    history.push({
-      search: qs.stringify({ term, startAt, endAt: startAt + value })
-    });
-  };
-
-  const handleSearch = ({ term, keys }: SearchParams<TransactionInfo>) => {
-    history.push({ search: qs.stringify({ term, keys, rowsPerPage }) });
-  };
-
-  useEffect(() => {
-    if (isAddress) {
-      fetchAddress(term).then(payload => {
-        setAddress(payload);
-      });
-    } else {
-      setAddress(null);
-    }
-  }, [location, term, isAddress]);
 
   useEffect(() => {
     setPending(true);
-    fetchTransactions(term ? { term } : { startAt, endAt }).then(payload => {
+    searchRequest(term, {
+      onTx: r => {
+        setBlock(null);
+        setAddress(null);
+        setTransactionResult([r]);
+      },
+      onBlock: r => {
+        setAddress(null);
+        setBlock(r.block);
+        setTransactionResult(r.txs);
+      },
+      onAddress: r => {
+        setBlock(null);
+        setAddress(r.balance);
+        setTransactionResult(r.txs);
+      },
+      onNotFound: () => {
+        setBlock(null);
+        setAddress(null);
+        setTransactionResult([]);
+      }
+    }).then(() => {
       setPending(false);
-      setTransactionResult(payload);
     });
   }, [location]);
 
@@ -128,7 +92,7 @@ export default () => {
           </CardContent>
         </Card>
       </Box>
-      {isAddress && (
+      {address && (
         <Box mb={2}>
           <Card>
             <CardContent>
@@ -137,37 +101,37 @@ export default () => {
               </Typography>
               <Table aria-label="simple table">
                 <TableBody>
-                  <TableRow>
-                    <TableCell size="small">Address</TableCell>
-                    <TableCell>
-                      {(address && `${address.hash}`) || (
-                        <Skeleton variant="text" />
-                      )}
-                    </TableCell>
-                  </TableRow>
+                  {/*<TableRow>*/}
+                  {/*  <TableCell size="small">Address</TableCell>*/}
+                  {/*  <TableCell>*/}
+                  {/*    {(address && `${address.hash}`) || (*/}
+                  {/*      <Skeleton variant="text" />*/}
+                  {/*    )}*/}
+                  {/*  </TableCell>*/}
+                  {/*</TableRow>*/}
                   <TableRow>
                     <TableCell size="small">Balance</TableCell>
                     <TableCell>
-                      {(address && `${address.balance} $DAG`) || (
+                      {(address && `${address.balance / 1e8} $DAG`) || (
                         <Skeleton variant="text" />
                       )}
                     </TableCell>
                   </TableRow>
-                  <TableRow>
-                    <TableCell size="small">$DAG Value</TableCell>
-                    <TableCell>
-                      {(address && `${address.balance} $DAG`) || (
-                        <Skeleton variant="text" />
-                      )}
-                    </TableCell>
-                  </TableRow>
+                  {/*<TableRow>*/}
+                  {/*  <TableCell size="small">$DAG Value</TableCell>*/}
+                  {/*  <TableCell>*/}
+                  {/*    {(address && `${address.balance} $DAG`) || (*/}
+                  {/*      <Skeleton variant="text" />*/}
+                  {/*    )}*/}
+                  {/*  </TableCell>*/}
+                  {/*</TableRow>*/}
                 </TableBody>
               </Table>
             </CardContent>
           </Card>
         </Box>
       )}
-      {isBlock && (
+      {block && (
         <Box mb={2}>
           <Card>
             <CardContent>
@@ -181,7 +145,7 @@ export default () => {
                     <TableCell>
                       <Link
                         component={RouterLink}
-                        to={`/transactions?${qs.stringify({
+                        to={`/search?${qs.stringify({
                           term: block!.hash
                         })}`}
                       >
@@ -213,7 +177,7 @@ export default () => {
                     <TableCell>
                       <Link
                         component={RouterLink}
-                        to={`/transactions?${qs.stringify({
+                        to={`/search?${qs.stringify({
                           term: transaction!.block
                         })}`}
                       >
@@ -226,7 +190,7 @@ export default () => {
                     <TableCell>
                       <Link
                         component={RouterLink}
-                        to={`/transactions?${qs.stringify({
+                        to={`/search?${qs.stringify({
                           term: transaction!.sender
                         })}`}
                       >
@@ -239,7 +203,7 @@ export default () => {
                     <TableCell>
                       <Link
                         component={RouterLink}
-                        to={`/transactions?${qs.stringify({
+                        to={`/search?${qs.stringify({
                           term: transaction!.receiver
                         })}`}
                       >
@@ -261,7 +225,7 @@ export default () => {
                 <Table aria-label="Transaction Results">
                   <TableHead>
                     <TableRow>
-                      <TableCell>Hash</TableCell>
+                      <TableCell>Transaction</TableCell>
                       <TableCell>Block</TableCell>
                       <TableCell>From</TableCell>
                       <TableCell>To</TableCell>
@@ -277,7 +241,7 @@ export default () => {
                             <Typography variant="body2" display="block" noWrap>
                               <Link
                                 component={RouterLink}
-                                to={`/transactions?${qs.stringify({
+                                to={`/search?${qs.stringify({
                                   term: hash
                                 })}`}
                               >
@@ -289,7 +253,7 @@ export default () => {
                             <Typography variant="body2" display="block" noWrap>
                               <Link
                                 component={RouterLink}
-                                to={`/transactions?${qs.stringify({
+                                to={`/search?${qs.stringify({
                                   term: block
                                 })}`}
                               >
@@ -301,7 +265,7 @@ export default () => {
                             <Typography variant="body2" display="block" noWrap>
                               <Link
                                 component={RouterLink}
-                                to={`/transactions?${qs.stringify({
+                                to={`/search?${qs.stringify({
                                   term: sender
                                 })}`}
                               >
@@ -313,7 +277,7 @@ export default () => {
                             <Typography variant="body2" display="block" noWrap>
                               <Link
                                 component={RouterLink}
-                                to={`/transactions?${qs.stringify({
+                                to={`/search?${qs.stringify({
                                   term: receiver
                                 })}`}
                               >
@@ -321,7 +285,7 @@ export default () => {
                               </Link>
                             </Typography>
                           </TableCell>
-                          <TableCell size="small">{amount}</TableCell>
+                          <TableCell size="small">{amount / 1e8}</TableCell>
                           <TableCell size="small">{fee}</TableCell>
                         </TableRow>
                       )
@@ -329,17 +293,6 @@ export default () => {
                   </TableBody>
                 </Table>
               </TableContainer>
-              {count > rows.length && (
-                <TablePagination
-                  rowsPerPageOptions={[10, 25, 100]}
-                  component="div"
-                  count={count}
-                  rowsPerPage={rowsPerPage}
-                  page={page}
-                  onChangePage={handleChangePage}
-                  onChangeRowsPerPage={handleChangeRowsPerPage}
-                />
-              )}
             </>
           ) : (
             <ActivityIndicator pending={isPending}>

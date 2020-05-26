@@ -21,15 +21,13 @@ import { ActivityIndicator } from '~components';
 import SearchForm from '~features/transactions/SearchForm';
 import {
   PagedResult,
-  Block,
-  Transaction,
   SearchParams,
   fetchBlocks,
   observeInfo,
-  fetchTransactions,
-  Info
+  fetchTransactions
 } from '~api';
 import { latestInfo } from '~api/latest-info';
+import { BlockInfo, TransactionInfo } from '~api/types';
 
 export default () => {
   const location = useLocation();
@@ -37,14 +35,14 @@ export default () => {
   const params = useMemo(() => qs.parse(location.search.replace(/^\?/, '')), [
     location
   ]);
-  const { term, keys } = params;
+  const { term } = params;
 
   const [isBlocksPending, setBlocksPending] = useState<boolean>(false);
   const [blocksPerPage, setBlocksPerPage] = useState<number>(9);
   const [snapshotHeight, setSnapshotHeight] = useState<number>(-1);
-  const [cleanupInfo, setCleanupState] = useState<boolean>(false);
+  const [cleanupInfo] = useState<boolean>(false);
   const [{ rows: blocks, count: blockCount }, setBlockResult] = useState<
-    PagedResult<Block>
+    PagedResult<BlockInfo>
   >({
     rows: [],
     count: 0
@@ -57,7 +55,7 @@ export default () => {
   const [
     { rows: transactions, count: txCount },
     setTransactionResult
-  ] = useState<PagedResult<Transaction>>({ rows: [], count: 0 });
+  ] = useState<PagedResult<TransactionInfo>>({ rows: [], count: 0 });
 
   let infoSubscription: Subscription;
 
@@ -96,10 +94,10 @@ export default () => {
     }
   }, [transactionsPerPage, snapshotHeight]);
 
-  const handleSearch = ({ term, keys }: SearchParams<Transaction>) => {
+  const handleSearch = ({ term }: SearchParams<TransactionInfo>) => {
     history.push({
-      pathname: '/transactions',
-      search: qs.stringify({ term, keys })
+      pathname: '/search',
+      search: qs.stringify({ term })
     });
   };
 
@@ -109,9 +107,9 @@ export default () => {
         <Card>
           <CardContent>
             <Typography gutterBottom variant="h5" component="h1">
-              Dashboard
+              DAG Explorer
             </Typography>
-            <SearchForm term={term} keys={keys} onFormSubmit={handleSearch} />
+            <SearchForm term={term} onFormSubmit={handleSearch} />
           </CardContent>
         </Card>
       </Box>
@@ -145,7 +143,7 @@ export default () => {
                           <Typography variant="body2" display="block" noWrap>
                             <Link
                               component={RouterLink}
-                              to={`/transactions?${qs.stringify({
+                              to={`/search?${qs.stringify({
                                 term: hash
                               })}`}
                             >
@@ -205,7 +203,7 @@ export default () => {
                         <Typography variant="body2" display="block" noWrap>
                           <Link
                             component={RouterLink}
-                            to={`/transactions?${qs.stringify({ term: hash })}`}
+                            to={`/search?${qs.stringify({ term: hash })}`}
                           >
                             {hash}
                           </Link>
@@ -216,7 +214,7 @@ export default () => {
                           From:{' '}
                           <Link
                             component={RouterLink}
-                            to={`/transactions?${qs.stringify({
+                            to={`/search?${qs.stringify({
                               term: sender
                             })}`}
                           >
@@ -227,7 +225,7 @@ export default () => {
                           To:{' '}
                           <Link
                             component={RouterLink}
-                            to={`/transactions?${qs.stringify({
+                            to={`/search?${qs.stringify({
                               term: receiver
                             })}`}
                           >
