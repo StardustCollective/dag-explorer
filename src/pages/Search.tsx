@@ -211,6 +211,12 @@ export default () => {
                       </Link>
                     </TableCell>
                   </TableRow>
+                  <TableRow>
+                    <TableCell>Amount</TableCell>
+                    <TableCell>
+                      {(transaction!.amount / 1e8).toLocaleString()} $DAG
+                    </TableCell>
+                  </TableRow>
                 </TableBody>
               </Table>
             </CardContent>
