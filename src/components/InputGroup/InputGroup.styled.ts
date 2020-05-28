@@ -5,6 +5,7 @@ export const Prepend = styled.div`
   .MuiButtonBase-root {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
+    min-width: 0;
   }
 `;
 
@@ -13,6 +14,7 @@ export const Append = styled.div`
   .MuiButtonBase-root {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
+    min-width: 0;
   }
 `;
 

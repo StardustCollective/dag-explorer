@@ -1,8 +1,10 @@
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
-import Box from '@material-ui/core/Box';
+import { useTheme } from '@material-ui/core/styles';
+import { Button, Box, TextField } from '@material-ui/core';
+import * as Icon from '@material-ui/icons';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
+import { InputGroup } from '~components';
 import { SearchParams } from '~api';
 import { TransactionInfo } from '~api/types';
 
@@ -16,6 +18,8 @@ export default ({ onFormSubmit, ...defaultValues }: SearchFormProps) => {
   >({
     defaultValues
   });
+  const theme = useTheme();
+  const matchesSmUp = useMediaQuery(theme.breakpoints.up('sm'));
 
   useEffect(() => {
     reset(defaultValues);
@@ -24,18 +28,26 @@ export default ({ onFormSubmit, ...defaultValues }: SearchFormProps) => {
   return (
     <form onSubmit={handleSubmit(onFormSubmit)} noValidate autoComplete="off">
       <Box width="100%" display="flex">
-        <TextField
-          inputRef={register}
-          id="search"
-          name="term"
-          label="Search by address, block, or tx hash"
-          variant="outlined"
-          fullWidth
-        />
-
-        <Button type="submit" variant="contained" color="primary">
-          Search
-        </Button>
+        <InputGroup
+          append={
+            <Button type="submit" variant="contained" color="primary">
+              {matchesSmUp ? <>Search</> : <Icon.Search />}
+            </Button>
+          }
+        >
+          <TextField
+            inputRef={register}
+            id="search"
+            name="term"
+            label={
+              matchesSmUp
+                ? 'Search by address, block or tx hash'
+                : 'Address, block, tx hash'
+            }
+            variant="outlined"
+            fullWidth
+          />
+        </InputGroup>
       </Box>
     </form>
   );

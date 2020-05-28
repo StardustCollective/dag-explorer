@@ -1,19 +1,15 @@
 import React from 'react';
 import { Route, Switch } from 'react-router';
+import { Link as RouterLink } from 'react-router-dom';
 import { useTheme } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
-import { CssBaseline } from '@material-ui/core';
-import IconButton from '@material-ui/core/IconButton';
-import * as Icon from '@material-ui/icons';
-import Toolbar from '@material-ui/core/Toolbar';
-import Container from '@material-ui/core/Container';
+import { CssBaseline, Container, Link, Toolbar } from '@material-ui/core';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { App, Main, Content } from './App.styled';
 import { Logo } from '~assets';
 import { Dashboard, Transactions, About, Search } from '~pages';
 
 export default () => {
-  // const location = useLocation();
   const theme = useTheme();
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const handleDrawerToggle = () => {
@@ -27,17 +23,9 @@ export default () => {
       <Main>
         <AppBar position="sticky" color="inherit">
           <Toolbar>
-            {!matchesSmUp && (
-              <IconButton
-                color="inherit"
-                aria-label="open drawer"
-                edge="start"
-                onClick={handleDrawerToggle}
-              >
-                <Icon.Menu />
-              </IconButton>
-            )}
-            <Logo />
+            <Link component={RouterLink} to="/" color="inherit">
+              <Logo />
+            </Link>
           </Toolbar>
         </AppBar>
         <Content>

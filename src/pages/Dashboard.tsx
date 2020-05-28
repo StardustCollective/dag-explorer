@@ -7,9 +7,9 @@ import {
   Button,
   Card,
   CardContent,
+  Grid,
   Link,
   Paper,
-  Table,
   TableBody,
   TableCell,
   TableContainer,
@@ -17,7 +17,7 @@ import {
   TableRow,
   Typography
 } from '@material-ui/core';
-import { ActivityIndicator } from '~components';
+import { ActivityIndicator, ResponsiveTable as Table } from '~components';
 import SearchForm from '~features/transactions/SearchForm';
 import {
   PagedResult,
@@ -36,7 +36,6 @@ export default () => {
     location
   ]);
   const { term } = params;
-
   const [isBlocksPending, setBlocksPending] = useState<boolean>(false);
   const [blocksPerPage, setBlocksPerPage] = useState<number>(9);
   const [snapshotHeight, setSnapshotHeight] = useState<number>(-1);
@@ -74,7 +73,6 @@ export default () => {
 
   useEffect(() => {
     if (snapshotHeight > 0) {
-      setBlocksPending(true);
       fetchBlocks({ startAt: 0, endAt: blocksPerPage }).then(payload => {
         setBlocksPending(false);
         setBlockResult(payload);
@@ -84,7 +82,6 @@ export default () => {
 
   useEffect(() => {
     if (snapshotHeight > 0) {
-      setTransactionsPending(true);
       fetchTransactions({ startAt: 0, endAt: transactionsPerPage }).then(
         payload => {
           setTransactionResult(payload);
@@ -113,8 +110,8 @@ export default () => {
           </CardContent>
         </Card>
       </Box>
-      <Box display="flex" m={-2}>
-        <Box flexGrow={1} p={2}>
+      <Grid container spacing={3}>
+        <Grid item xs={12} sm={6}>
           <Paper>
             <TableContainer>
               <Box p={1}>
@@ -170,7 +167,10 @@ export default () => {
                 <Button
                   variant="contained"
                   color="secondary"
-                  onClick={() => setBlocksPerPage(blocksPerPage + 10)}
+                  onClick={() => {
+                    setBlocksPending(true);
+                    setBlocksPerPage(blocksPerPage + 10);
+                  }}
                 >
                   <ActivityIndicator pending={isBlocksPending}>
                     Load more
@@ -179,8 +179,8 @@ export default () => {
               </Box>
             )}
           </Paper>
-        </Box>
-        <Box flexGrow={1} p={2}>
+        </Grid>
+        <Grid item xs={12} sm={6}>
           <Paper>
             <TableContainer>
               <Box p={1}>
@@ -248,9 +248,10 @@ export default () => {
                 <Button
                   variant="contained"
                   color="secondary"
-                  onClick={() =>
-                    setTransactionsPerPage(transactionsPerPage + 10)
-                  }
+                  onClick={() => {
+                    setTransactionsPending(true);
+                    setTransactionsPerPage(transactionsPerPage + 10);
+                  }}
                 >
                   <ActivityIndicator pending={isTransactionsPending}>
                     Load more
@@ -259,8 +260,8 @@ export default () => {
               </Box>
             )}
           </Paper>
-        </Box>
-      </Box>
+        </Grid>
+      </Grid>
     </>
   );
 };

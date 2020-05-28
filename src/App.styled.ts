@@ -12,7 +12,11 @@ export const Main = styled.div`
 `;
 
 export const Content = styled.div`
-  padding: 24px;
+  padding: 24px 0;
+
+  ${({ theme }) => theme.breakpoints.up('sm')} {
+    padding: 24px;
+  }
 `;
 
 export const Shape = styled.img.attrs(() => ({
@@ -60,10 +64,4 @@ export const SidebarTop = styled.div`
 
 export const App = styled.div`
   display: flex;
-
-  ${({ theme }) => theme.breakpoints.up('sm')} {
-    ${Sidebar} {
-      max-width: none;
-    }
-  }
 `;

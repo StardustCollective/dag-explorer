@@ -1,22 +1,24 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useLocation, useHistory, Link as RouterLink } from 'react-router-dom';
 import qs from 'qs';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
-import Typography from '@material-ui/core/Typography';
-import Paper from '@material-ui/core/Paper';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Box from '@material-ui/core/Box';
-import Link from '@material-ui/core/Link';
+import {
+  Box,
+  Card,
+  CardContent,
+  Link,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography
+} from '@material-ui/core';
 import Skeleton from '@material-ui/lab/Skeleton';
 import { IconButton } from '@material-ui/core';
 import { ArrowBack } from '@material-ui/icons';
-import ActivityIndicator from '~components/ActivityIndicator';
+import { ActivityIndicator, ResponsiveTable } from '~components';
 import SearchForm from '~features/transactions/SearchForm';
 import { SearchParams } from '~api';
 import { searchRequest } from '~api/search';
@@ -101,14 +103,6 @@ export default () => {
               </Typography>
               <Table aria-label="simple table">
                 <TableBody>
-                  {/*<TableRow>*/}
-                  {/*  <TableCell size="small">Address</TableCell>*/}
-                  {/*  <TableCell>*/}
-                  {/*    {(address && `${address.hash}`) || (*/}
-                  {/*      <Skeleton variant="text" />*/}
-                  {/*    )}*/}
-                  {/*  </TableCell>*/}
-                  {/*</TableRow>*/}
                   <TableRow>
                     <TableCell size="small">Balance</TableCell>
                     <TableCell>
@@ -117,14 +111,6 @@ export default () => {
                       )}
                     </TableCell>
                   </TableRow>
-                  {/*<TableRow>*/}
-                  {/*  <TableCell size="small">$DAG Value</TableCell>*/}
-                  {/*  <TableCell>*/}
-                  {/*    {(address && `${address.balance} $DAG`) || (*/}
-                  {/*      <Skeleton variant="text" />*/}
-                  {/*    )}*/}
-                  {/*  </TableCell>*/}
-                  {/*</TableRow>*/}
                 </TableBody>
               </Table>
             </CardContent>
@@ -143,14 +129,16 @@ export default () => {
                   <TableRow>
                     <TableCell>Hash</TableCell>
                     <TableCell>
-                      <Link
-                        component={RouterLink}
-                        to={`/search?${qs.stringify({
-                          term: block!.hash
-                        })}`}
-                      >
-                        {block!.hash}
-                      </Link>
+                      <Typography variant="body2" display="block" noWrap>
+                        <Link
+                          component={RouterLink}
+                          to={`/search?${qs.stringify({
+                            term: block!.hash
+                          })}`}
+                        >
+                          {block!.hash}
+                        </Link>
+                      </Typography>
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -170,45 +158,55 @@ export default () => {
                 <TableBody>
                   <TableRow>
                     <TableCell>Hash</TableCell>
-                    <TableCell>{transaction!.hash}</TableCell>
+                    <TableCell>
+                      <Typography variant="body2" display="block" noWrap>
+                        {transaction!.hash}
+                      </Typography>
+                    </TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell>Block</TableCell>
                     <TableCell>
-                      <Link
-                        component={RouterLink}
-                        to={`/search?${qs.stringify({
-                          term: transaction!.block
-                        })}`}
-                      >
-                        {transaction!.block}
-                      </Link>
+                      <Typography variant="body2" display="block" noWrap>
+                        <Link
+                          component={RouterLink}
+                          to={`/search?${qs.stringify({
+                            term: transaction!.block
+                          })}`}
+                        >
+                          {transaction!.block}
+                        </Link>
+                      </Typography>
                     </TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell>From</TableCell>
                     <TableCell>
-                      <Link
-                        component={RouterLink}
-                        to={`/search?${qs.stringify({
-                          term: transaction!.sender
-                        })}`}
-                      >
-                        {transaction!.sender}
-                      </Link>
+                      <Typography variant="body2" display="block" noWrap>
+                        <Link
+                          component={RouterLink}
+                          to={`/search?${qs.stringify({
+                            term: transaction!.sender
+                          })}`}
+                        >
+                          {transaction!.sender}
+                        </Link>
+                      </Typography>
                     </TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell>To</TableCell>
                     <TableCell>
-                      <Link
-                        component={RouterLink}
-                        to={`/search?${qs.stringify({
-                          term: transaction!.receiver
-                        })}`}
-                      >
-                        {transaction!.receiver}
-                      </Link>
+                      <Typography variant="body2" display="block" noWrap>
+                        <Link
+                          component={RouterLink}
+                          to={`/search?${qs.stringify({
+                            term: transaction!.receiver
+                          })}`}
+                        >
+                          {transaction!.receiver}
+                        </Link>
+                      </Typography>
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -222,7 +220,7 @@ export default () => {
           (!isPending && rows.length > 0 ? (
             <>
               <TableContainer component={Paper}>
-                <Table aria-label="Transaction Results">
+                <ResponsiveTable aria-label="Transaction Results">
                   <TableHead>
                     <TableRow>
                       <TableCell>Transaction</TableCell>
@@ -291,7 +289,7 @@ export default () => {
                       )
                     )}
                   </TableBody>
-                </Table>
+                </ResponsiveTable>
               </TableContainer>
             </>
           ) : (

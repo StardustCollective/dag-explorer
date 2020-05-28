@@ -1,6 +1,7 @@
-import { createMuiTheme } from '@material-ui/core';
+import { createMuiTheme, Theme } from '@material-ui/core';
+import { createStyles } from '@material-ui/styles';
 
-export default createMuiTheme({
+const theme = createMuiTheme({
   palette: {
     type: 'light',
     primary: {
@@ -70,6 +71,11 @@ export default createMuiTheme({
         maxWidth: '100%'
       }
     },
+    MuiTable: {
+      root: {
+        tableLayout: 'fixed'
+      }
+    },
     MuiTableCell: {
       sizeSmall: {
         maxWidth: 160
@@ -87,3 +93,5 @@ export default createMuiTheme({
     }
   }
 });
+
+export default theme;
