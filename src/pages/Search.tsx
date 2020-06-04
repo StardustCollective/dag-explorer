@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, ReactNode } from 'react';
 import { useLocation, useHistory, Link as RouterLink } from 'react-router-dom';
 import qs from 'qs';
 import {
@@ -24,6 +24,15 @@ import { SearchParams } from '~api';
 import { searchRequest } from '~api/search';
 import { AddressInfo, BlockInfo, TransactionInfo } from '~api/types';
 
+const getSearchLink = (term: string): ReactNode => (
+  <Link
+    component={RouterLink}
+    to={`/search?${qs.stringify({ term })}`}
+  >
+    {term}
+  </Link>
+);
+
 export default () => {
   const location = useLocation();
   const history = useHistory();
@@ -43,7 +52,7 @@ export default () => {
   const handleSearch = ({ term }: SearchParams<TransactionInfo>) => {
     history.push({ search: qs.stringify({ term }) });
   };
-
+ 
   useEffect(() => {
     setPending(true);
     searchRequest(term, {
@@ -130,14 +139,7 @@ export default () => {
                     <TableCell>Hash</TableCell>
                     <TableCell>
                       <Typography variant="body2" display="block" noWrap>
-                        <Link
-                          component={RouterLink}
-                          to={`/search?${qs.stringify({
-                            term: block!.hash
-                          })}`}
-                        >
-                          {block!.hash}
-                        </Link>
+                        {getSearchLink(block!.hash)}
                       </Typography>
                     </TableCell>
                   </TableRow>
@@ -168,14 +170,7 @@ export default () => {
                     <TableCell>Block</TableCell>
                     <TableCell>
                       <Typography variant="body2" display="block" noWrap>
-                        <Link
-                          component={RouterLink}
-                          to={`/search?${qs.stringify({
-                            term: transaction!.block
-                          })}`}
-                        >
-                          {transaction!.block}
-                        </Link>
+                        {getSearchLink(transaction!.block)}
                       </Typography>
                     </TableCell>
                   </TableRow>
@@ -183,14 +178,7 @@ export default () => {
                     <TableCell>From</TableCell>
                     <TableCell>
                       <Typography variant="body2" display="block" noWrap>
-                        <Link
-                          component={RouterLink}
-                          to={`/search?${qs.stringify({
-                            term: transaction!.sender
-                          })}`}
-                        >
-                          {transaction!.sender}
-                        </Link>
+                        {getSearchLink(transaction!.sender)}
                       </Typography>
                     </TableCell>
                   </TableRow>
@@ -198,14 +186,7 @@ export default () => {
                     <TableCell>To</TableCell>
                     <TableCell>
                       <Typography variant="body2" display="block" noWrap>
-                        <Link
-                          component={RouterLink}
-                          to={`/search?${qs.stringify({
-                            term: transaction!.receiver
-                          })}`}
-                        >
-                          {transaction!.receiver}
-                        </Link>
+                        {getSearchLink(transaction!.receiver)}
                       </Typography>
                     </TableCell>
                   </TableRow>
@@ -218,80 +199,35 @@ export default () => {
       <Box>
         {!isSingleTransaction &&
           (!isPending && rows.length > 0 ? (
-            <>
-              <TableContainer component={Paper}>
-                <ResponsiveTable aria-label="Transaction Results">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Transaction</TableCell>
-                      <TableCell>Block</TableCell>
-                      <TableCell>From</TableCell>
-                      <TableCell>To</TableCell>
-                      <TableCell>Value</TableCell>
-                      <TableCell>Fee</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {rows.map(
-                      ({ amount, block, hash, sender, receiver, fee }) => (
-                        <TableRow key={hash}>
-                          <TableCell size="small">
-                            <Typography variant="body2" display="block" noWrap>
-                              <Link
-                                component={RouterLink}
-                                to={`/search?${qs.stringify({
-                                  term: hash
-                                })}`}
-                              >
-                                {hash}
-                              </Link>
-                            </Typography>
-                          </TableCell>
-                          <TableCell size="small">
-                            <Typography variant="body2" display="block" noWrap>
-                              <Link
-                                component={RouterLink}
-                                to={`/search?${qs.stringify({
-                                  term: block
-                                })}`}
-                              >
-                                {block}
-                              </Link>
-                            </Typography>
-                          </TableCell>
-                          <TableCell size="small">
-                            <Typography variant="body2" display="block" noWrap>
-                              <Link
-                                component={RouterLink}
-                                to={`/search?${qs.stringify({
-                                  term: sender
-                                })}`}
-                              >
-                                {sender}
-                              </Link>
-                            </Typography>
-                          </TableCell>
-                          <TableCell size="small">
-                            <Typography variant="body2" display="block" noWrap>
-                              <Link
-                                component={RouterLink}
-                                to={`/search?${qs.stringify({
-                                  term: receiver
-                                })}`}
-                              >
-                                {receiver}
-                              </Link>
-                            </Typography>
-                          </TableCell>
-                          <TableCell size="small">{amount / 1e8}</TableCell>
-                          <TableCell size="small">{fee}</TableCell>
-                        </TableRow>
-                      )
-                    )}
-                  </TableBody>
-                </ResponsiveTable>
-              </TableContainer>
-            </>
+            <TableContainer component={Paper}>
+              <ResponsiveTable
+                columns={[
+                  {
+                    title: 'Transaction',
+                    field: 'hash',
+                    format: getSearchLink
+                  },
+                  {
+                    title: 'Block',
+                    field: 'block',
+                    format: getSearchLink
+                  },
+                  {
+                    title: 'From',
+                    field: 'sender',
+                    format: getSearchLink
+                  },
+                  {
+                    title: 'To',
+                    field: 'receiver',
+                    format: getSearchLink
+                  },
+                  { title: 'Value', field: 'amount' },
+                  { title: 'Fee', field: 'fee' }
+                ]}
+                rows={rows}
+              />
+            </TableContainer>
           ) : (
             <ActivityIndicator pending={isPending}>
               {isPending ? <>Fetching transactions...</> : <>No results</>}

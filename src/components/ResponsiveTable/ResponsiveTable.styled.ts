@@ -1,22 +1,17 @@
-import styled, { css } from 'styled-components';
-import { Table as MuiTable } from '@material-ui/core';
+import styled, { css, StyledComponentProps } from 'styled-components';
+import * as Mui from '@material-ui/core';
 
-export const Table = styled(MuiTable)`
-  table-layout: fixed;
-
-  ${({ theme }) => theme.breakpoints.down('md')} {
-    td,
-    th {
-      display: block;
-      box-sizing: border-box;
-      max-width: none;
-      width: 100%;
-      border-top: 0;
-
-      &:not(:last-child) {
-        border-bottom: 0;
-        padding-bottom: 0;
-      }
+export const TableCell = styled(Mui.TableCell)<{
+  shrink?: boolean;
+  mediaHidden?: string;
+}>`
+  ${({ theme, mediaHidden }) => theme.breakpoints.keys.map((breakpoint: string) => css`
+    ${theme.breakpoints.down(mediaHidden)} {
+      display: none;
     }
-  }
+  `)}
+`;
+
+export const Table = styled(Mui.Table)`
+  table-layout: fixed;
 `;

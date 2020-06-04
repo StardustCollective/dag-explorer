@@ -77,9 +77,6 @@ const theme = createMuiTheme({
       }
     },
     MuiTableCell: {
-      sizeSmall: {
-        maxWidth: 160
-      },
       head: {
         background: '#F7F5F3',
         borderTop: '1px solid #F2EDE6',

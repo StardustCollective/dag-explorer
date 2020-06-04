@@ -10,6 +10,7 @@ import {
   Grid,
   Link,
   Paper,
+  Table,
   TableBody,
   TableCell,
   TableContainer,
@@ -17,7 +18,7 @@ import {
   TableRow,
   Typography
 } from '@material-ui/core';
-import { ActivityIndicator, ResponsiveTable as Table } from '~components';
+import { ActivityIndicator } from '~components';
 import SearchForm from '~features/transactions/SearchForm';
 import {
   PagedResult,

@@ -2,52 +2,40 @@
 
 
 ```js
-import Table from '.';
-import {
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography
-} from '@material-ui/core';
+import Table from '.'
+
+;
 
 const rows = Array.from(Array(10), (_, index) => ({
   id: index,
-  firstName: '19713e56a3bb3dd405bda984f4669718e8dc9990cc284bfad84f1844bfdb7f15',
-  lastName: '19713e56a3bb3dd405bda984f4669718e8dc9990cc284bfad84f1844bfdb7f15'
+  hash: '19713e56a3bb3dd405bda984f4669718e8dc9990cc284bfad84f1844bfdb7f15',
+  block: '19713e56a3bb3dd405bda984f4669718e8dc9990cc284bfad84f1844bfdb7f15',
+  sender: '19713e56a3bb3dd405bda984f4669718e8dc9990cc284bfad84f1844bfdb7f15',
+  receiver: '19713e56a3bb3dd405bda984f4669718e8dc9990cc284bfad84f1844bfdb7f15',
 }));
 
-console.log('rows', [...Array(100).keys()].length, rows);
+const columns = [
+  { field: 'id', primary: true, mediaHidden: 'smDown', width: '1px' },
+  { field: 'hash', noWrap: true },
+  { field: 'block', noWrap: true },
+  { field: 'sender', noWrap: true },
+  { field: 'receiver', noWrap: true }
+];
 
-<Table>
-  <TableHead>
-    <TableRow>
-      <TableCell>Id</TableCell>
-      <TableCell>First name</TableCell>
-      <TableCell>Last name</TableCell>
-    </TableRow>
-  </TableHead>
-  <TableBody>
-    {rows.map(({ id, firstName, lastName }) => (
-      <TableRow key={id}>
-        <TableCell size="small">
-          <Typography variant="body2" display="block" noWrap>
-            {id}
-          </Typography>
-        </TableCell>
-        <TableCell size="small">
-          <Typography variant="body2" display="block" noWrap>
-            {firstName}
-          </Typography>
-        </TableCell>
-        <TableCell size="small">
-          <Typography variant="body2" display="block" noWrap>
-            {lastName}
-          </Typography>
-        </TableCell>
-      </TableRow>
-    ))}
-  </TableBody>
-</Table>
+const MyTable = ({ rows, columns }) => {
+  console.log('RENDER TABLE: ', rows, columns);
+  return (
+    <Table
+      columns={columns}
+      rows={rows}
+      detail={row => (
+        <Table>
+          Hello
+        </Table>
+      )}
+    />
+  );
+};
+
+<MyTable rows={rows} columns={columns}/>
 ```

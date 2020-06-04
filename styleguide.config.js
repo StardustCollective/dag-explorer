@@ -19,6 +19,11 @@ module.exports = {
       components: path.join(__dirname, 'src', 'components/*/index.{ts,tsx}'),
       sectionDepth: 1,
     },
+    {
+      name: 'Hooks',
+      components: path.join(__dirname, 'src', 'hooks/*/index.{ts,tsx}'),
+      sectionDepth: 1,
+    },
   ],
   propsParser: parse,
   styleguideComponents: {

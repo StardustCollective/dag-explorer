@@ -1,1 +1,1 @@
-export { default } from './ResponsiveTable';
+export { default, ResponsiveTableProps } from './ResponsiveTable';
