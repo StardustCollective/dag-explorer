@@ -24,14 +24,16 @@ import { SearchParams } from '~api';
 import { searchRequest } from '~api/search';
 import { AddressInfo, BlockInfo, TransactionInfo } from '~api/types';
 
-const getSearchLink = (term: string): ReactNode => (
-  <Link
-    component={RouterLink}
-    to={`/search?${qs.stringify({ term })}`}
-  >
-    {term}
-  </Link>
-);
+const getSearchLink = (term?: string): ReactNode => {
+  return term ? (
+    <Link
+      component={RouterLink}
+      to={`/search?${qs.stringify({ term })}`}
+    >
+      {term}
+    </Link>
+  ) : null
+}
 
 export default () => {
   const location = useLocation();
@@ -204,26 +206,26 @@ export default () => {
                 columns={[
                   {
                     title: 'Transaction',
-                    field: 'hash',
+                    name: 'hash',
                     format: getSearchLink
                   },
                   {
                     title: 'Block',
-                    field: 'block',
+                    name: 'block',
                     format: getSearchLink
                   },
                   {
                     title: 'From',
-                    field: 'sender',
+                    name: 'sender',
                     format: getSearchLink
                   },
                   {
                     title: 'To',
-                    field: 'receiver',
+                    name: 'receiver',
                     format: getSearchLink
                   },
-                  { title: 'Value', field: 'amount' },
-                  { title: 'Fee', field: 'fee' }
+                  { title: 'Value', name: 'amount' },
+                  { title: 'Fee', name: 'fee' }
                 ]}
                 rows={rows}
               />

@@ -4,3 +4,4 @@ export * from './blocks';
 export * from './search';
 export * from './transactions';
 export * from './address';
+export * from './types';

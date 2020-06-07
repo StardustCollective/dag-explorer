@@ -28,6 +28,10 @@ const theme = createMuiTheme({
     },
     h5: {
       fontWeight: 200
+    },
+    subtitle1: {
+      fontSize: 12,
+      color: '#ADADAD'
     }
   },
   overrides: {
@@ -73,7 +77,7 @@ const theme = createMuiTheme({
     },
     MuiTable: {
       root: {
-        tableLayout: 'fixed'
+        // tableLayout: 'fixed'
       }
     },
     MuiTableCell: {

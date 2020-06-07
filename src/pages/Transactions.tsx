@@ -26,6 +26,7 @@ import {
   fetchAddress
 } from '~api';
 import { AddressInfo, TransactionInfo } from '~api/types';
+import ResponsiveTable from '~components/ResponsiveTable';
 
 export default () => {
   const location = useLocation();
@@ -128,6 +129,34 @@ export default () => {
           </CardContent>
         </Card>
       </Box>
+      <ResponsiveTable
+        rows={rows}
+        columns={[
+          {
+            name: 'hash',
+            noWrap: true,
+            primary: true,
+            media: { smUp: { hidden: true } },
+          },
+          { name: 'block', noWrap: true },
+          { name: 'sender', noWrap: true },
+          { name: 'receiver', noWrap: true }
+        ]}
+        media={{
+          smUp: {
+            detail: row => (
+              <div>
+                Hello
+              </div>
+            ),
+            summary: row => (
+              <div>
+                Summary
+              </div>
+            )
+          }
+        }}
+      />
       {isAddress && (
         <Box mb={2}>
           <Card>

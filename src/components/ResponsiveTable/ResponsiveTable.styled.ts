@@ -1,15 +1,17 @@
 import styled, { css, StyledComponentProps } from 'styled-components';
 import * as Mui from '@material-ui/core';
 
+export const IconButtonHeaderCell = styled(Mui.TableCell)`
+  width: 24px;
+  padding-right: 32px;
+  padding-left: 0;
+  box-sizing: border-box;
+`
+
 export const TableCell = styled(Mui.TableCell)<{
-  shrink?: boolean;
-  mediaHidden?: string;
+  valign?: 'baseline' | 'middle' | 'top' | 'bottom' | 'inherit' | undefined
 }>`
-  ${({ theme, mediaHidden }) => theme.breakpoints.keys.map((breakpoint: string) => css`
-    ${theme.breakpoints.down(mediaHidden)} {
-      display: none;
-    }
-  `)}
+  vertical-align: ${({ valign = 'inherit' }) => valign};
 `;
 
 export const Table = styled(Mui.Table)`

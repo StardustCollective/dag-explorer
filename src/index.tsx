@@ -17,16 +17,14 @@ const GlobalStyle = createGlobalStyle(
 );
 
 ReactDOM.render(
-  <React.StrictMode>
-    <MuiThemeProvider theme={theme}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <GlobalStyle />
-        <Router basename={process.env.PUBLIC_PATH}>
-          <App />
-        </Router>
-      </ThemeProvider>
-    </MuiThemeProvider>
-  </React.StrictMode>,
+  <MuiThemeProvider theme={theme}>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <GlobalStyle />
+      <Router basename={process.env.PUBLIC_PATH}>
+        <App />
+      </Router>
+    </ThemeProvider>
+  </MuiThemeProvider>,
   document.getElementById('root') as HTMLElement
 );

@@ -1,90 +1,171 @@
-import React, { ReactNode, FunctionComponent, useMemo } from 'react';
-import { TableBody, TableHead, TableCellProps, TableProps as MuiTableProps, Typography } from '@material-ui/core';
+import React, { ReactNode, FunctionComponent, useMemo, HTMLAttributes } from 'react';
+import {
+  Paper,
+  TableContainer,
+  TableContainerProps,
+  TableBody,
+  TableHead,
+  TableCellProps,
+  TableProps as MuiTableProps,
+  TableRow,
+  Typography
+} from '@material-ui/core';
+import humanizeString from 'humanize-string';
 import { useBreakpoints } from '~hooks';
-import { Table, TableCell } from './ResponsiveTable.styled';
-import TableRow from './CollapsibleTableRow';
+import { Table, TableCell, IconButtonHeaderCell } from './ResponsiveTable.styled';
+import CollapsibleTableRow from './CollapsibleTableRow';
 
-export type ColumnData<T> = TableCellProps & {
+export type ColumnData<T, K extends keyof T> = TableCellProps & {
   title?: string;
-  field: string;
+  name: string;
+  value?: (row: T, options?: ColumnData<T, K>) => any;
   primary?: boolean;
-  format?: (value: T) => ReactNode; // TODO: Add default formatters, e.g. number
+  format?: (value: any, options?: ColumnData<T, K>) => ReactNode;
   noWrap?: boolean;
-  /** Specify theme breakpoint */
-  mediaHidden?: string;
-  // TODO: Add option to render hidden columns or other content below the actual columns content
+  hidden?: boolean;
+  summary?: FunctionComponent<T>;
+  media?: {
+    [breakpoint: string]: Omit<ColumnData<T, K>, 'name'>
+  },
+  width?: string;
 }
 
-export interface ResponsiveTableProps<T> extends Omit<MuiTableProps, 'children'> {
+export interface ResponsiveTableProps<T> extends Omit<MuiTableProps, 'children' | 'summary'> {
   rows: T[];
-  columns: Array<ColumnData<keyof T>>;
+  columns: Array<ColumnData<T, keyof T>>;
   detail?: FunctionComponent<T>;
+  summary?: FunctionComponent<T>;
+  containerProps?: TableContainerProps;
+  media?: {
+    [breakpoint: string]: Partial<ResponsiveTableProps<T>>
+  }
 }
 
-export default <T extends {}>({
-  rows,
-  columns,
-  detail: DetailView,
-  ...props
-}: ResponsiveTableProps<T>) => {
+export default <T extends {}>({ media = {}, ...props }: ResponsiveTableProps<T>) => {
   const mediaMatches = useBreakpoints();
+  console.log('render...', props);
+  const {
+    rows = [],
+    columns = [],
+    detail: DetailView,
+    summary: SummaryView,
+    containerProps,
+    ...tableProps
+  } = useMemo(() => {
+    return Object.entries(media).reduce((result, [ breakpoint, props ]) => {
+      if (mediaMatches[breakpoint]) {
+        return {
+          ...result,
+          ...props
+        }
+      }
+
+      return result;
+    }, props);
+  }, [media, props, mediaMatches]);
+
+  console.log('mediaMatches: ', columns, mediaMatches);
 
   const primaryKey = useMemo(() => {
-    return columns
+    return [...columns]
       .filter(({ primary }) => primary)
-      .map(({ field }) => field)
-      .shift() || columns[0]?.field;
+      .map(({ name }) => name)[0] || columns[0]?.name;
   }, [columns]);
 
-  const visibleColumns = useMemo(() => {
-    return columns.filter(({ mediaHidden }) =>
-      !mediaHidden || !mediaMatches[mediaHidden]
-    );
-  }, [columns, mediaMatches]);
+  const mediaColumns = useMemo(() => {
+    return columns.map(({ media = {}, ...props }) => {
+      return Object.entries(media).reduce((result, [ breakpoint, props ]) => {
+        if (mediaMatches[breakpoint]) {
+          return {
+            ...result,
+            ...props
+          }
+        }
 
-  const formattedRows = useMemo(() => {
+        return result;
+      }, props);
+    })
+  }, [columns, mediaMatches])
+
+  const visibleColumns = useMemo(() => {
+    return mediaColumns.filter(({ hidden }) => !hidden);
+  }, [mediaColumns]);
+
+  const computedRows = useMemo(() => {
     return rows.map((row) =>
       Object.assign({}, ...columns.map(({
-        field,
-        format = value => new String(value)
+        name,
+        value = row => row[name],
+        ...options
       }) => ({
-        [field]: format(row[field])
+        [name]: value(row, {
+          name,
+          value,
+          ...options
+        })
       })))
     );
   }, [rows, columns]);
 
+  const formattedRows = useMemo(() => {
+    return computedRows.map((row) =>
+      Object.assign({}, ...columns.map(({
+        name,
+        format = value => new String(value)
+      }) => ({
+        [name]: format(row[name])
+      })))
+    );
+  }, [computedRows, columns]);
+
   return (
-    <Table {...props}>
-      <TableHead>
-        <TableRow>
-          {visibleColumns.map(({ field, title = field, primary, mediaHidden, noWrap, ...props }) => (
-            <TableCell key={field} {...props}>{title}</TableCell>
-          ))}
-          <TableCell/>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {formattedRows.map(row => (
-          <TableRow
-            key={primaryKey && row[primaryKey] || JSON.stringify(row)}
-            detail={DetailView ? <DetailView {...row}></DetailView> : undefined}
-          >
-            {visibleColumns.map(({
-              field,
-              primary,
-              mediaHidden,
-              noWrap,
-              ...props
-            }) => (
-              <TableCell key={field} {...props}>
-                <Typography variant="body2" noWrap={noWrap}>
-                  {row[field]}
-                </Typography>
-              </TableCell>
+    <TableContainer component={Paper} {...containerProps}>
+      <Table {...tableProps}>
+        <TableHead>
+          <TableRow>
+            {visibleColumns.map(({ name, title = humanizeString(name), primary, noWrap, ...props }) => (
+              <TableCell key={name} {...props}>{title}</TableCell>
             ))}
+            {!!DetailView && (
+              <IconButtonHeaderCell/>
+            )}
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-);
+        </TableHead>
+        <TableBody>
+          {formattedRows.map(row => (
+            <CollapsibleTableRow
+              key={primaryKey && row[primaryKey] || JSON.stringify(row)}
+              detail={DetailView ? (
+                <DetailView {...row}></DetailView>
+               ) : undefined}
+              summary={SummaryView ? (
+                <SummaryView {...row}></SummaryView>
+              ) : undefined}
+            >
+              {visibleColumns.map(({
+                name,
+                primary,
+                noWrap,
+                summary: ColumnSummaryView,
+                ...props
+              }) => (
+                <TableCell
+                  key={name}
+                  valign="top"
+                  {...props}
+                >
+                  <Typography variant="body2" noWrap={noWrap} component="div">
+                    {row[name]}
+                  </Typography>
+                  {!!ColumnSummaryView && (
+                    <ColumnSummaryView {...row}/>
+                  )}
+                </TableCell>
+              ))}
+            </CollapsibleTableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
 }
