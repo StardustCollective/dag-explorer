@@ -292,7 +292,7 @@ export default () => {
                             </Typography>
                           </TableCell>
                           <TableCell size="small">{amount / 1e8}</TableCell>
-                          <TableCell size="small">{fee}</TableCell>
+                          <TableCell size="small">{fee / 1e8}</TableCell>
                         </TableRow>
                       )
                     )}
