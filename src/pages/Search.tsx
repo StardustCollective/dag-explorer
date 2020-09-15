@@ -118,9 +118,14 @@ export default () => {
                     <TableCell size="small">Balance</TableCell>
                     <TableCell>
                       {(address &&
-                        `${address.balance / 1e8} $DAG ($${(address.balance *
-                          fiatPrice) /
-                          1e8} USD)`) || <Skeleton variant="text" />}
+                        `${(address.balance / 1e8).toLocaleString(
+                          navigator.language
+                        )} $DAG ($${(
+                          (address.balance * fiatPrice) /
+                          1e8
+                        ).toLocaleString(navigator.language)} USD)`) || (
+                        <Skeleton variant="text" />
+                      )}
                     </TableCell>
                   </TableRow>
                   {/*<TableRow>*/}
@@ -224,7 +229,10 @@ export default () => {
                         navigator.language
                       )}{' '}
                       $DAG ($
-                      {(transaction!.amount * fiatPrice) / 1e8} USD)
+                      {((transaction!.amount * fiatPrice) / 1e8).toLocaleString(
+                        navigator.language
+                      )}{' '}
+                      USD)
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -301,8 +309,12 @@ export default () => {
                               </Link>
                             </Typography>
                           </TableCell>
-                          <TableCell size="small">{amount / 1e8}</TableCell>
-                          <TableCell size="small">{fee / 1e8}</TableCell>
+                          <TableCell size="small">
+                            {(amount / 1e8).toLocaleString(navigator.language)}
+                          </TableCell>
+                          <TableCell size="small">
+                            {(fee / 1e8).toLocaleString(navigator.language)}
+                          </TableCell>
                         </TableRow>
                       )
                     )}
