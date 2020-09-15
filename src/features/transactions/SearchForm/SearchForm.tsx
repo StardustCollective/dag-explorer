@@ -3,6 +3,8 @@ import { useForm } from 'react-hook-form';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Box from '@material-ui/core/Box';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
+import useTheme from '@material-ui/core/styles/useTheme';
 import Alert from '@material-ui/lab/Alert';
 import * as yup from 'yup';
 import { SearchParams } from '~api';
@@ -29,9 +31,16 @@ export default ({ onFormSubmit, ...defaultValues }: SearchFormProps) => {
     reset(defaultValues);
   }, [JSON.stringify(defaultValues)]);
 
+  const theme = useTheme();
+  const matchesSmUp = useMediaQuery(theme.breakpoints.up('sm'));
+
   return (
     <form onSubmit={handleSubmit(onFormSubmit)} noValidate autoComplete="off">
-      <Box width="100%" display="flex">
+      <Box
+        width="100%"
+        display="flex"
+        flexDirection={matchesSmUp ? 'row' : 'column'}
+      >
         <TextField
           inputRef={register}
           id="search"

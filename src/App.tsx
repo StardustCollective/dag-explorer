@@ -6,7 +6,6 @@ import { CssBaseline } from '@material-ui/core';
 // import IconButton from '@material-ui/core/IconButton';
 // import * as Icon from '@material-ui/icons';
 import Toolbar from '@material-ui/core/Toolbar';
-import Container from '@material-ui/core/Container';
 // import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { App, Main, Content } from './App.styled';
 import { Logo } from '~assets';
@@ -41,18 +40,12 @@ export default () => {
           </Toolbar>
         </AppBar>
         <Content>
-          <Container>
-            <Switch>
-              <Route path="/" exact={true} component={Dashboard} />
-              <Route path="/search" exact={true} component={Search} />
-              <Route
-                path="/transactions"
-                exact={true}
-                component={Transactions}
-              />
-              <Route path="/about" exact={true} component={About} />
-            </Switch>
-          </Container>
+          <Switch>
+            <Route path="/" exact={true} component={Dashboard} />
+            <Route path="/search" exact={true} component={Search} />
+            <Route path="/transactions" exact={true} component={Transactions} />
+            <Route path="/about" exact={true} component={About} />
+          </Switch>
         </Content>
       </Main>
     </App>

@@ -17,6 +17,8 @@ import {
   TableRow,
   Typography
 } from '@material-ui/core';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
+import useTheme from '@material-ui/core/styles/useTheme';
 import { ActivityIndicator } from '~components';
 import SearchForm from '~features/transactions/SearchForm';
 import {
@@ -56,6 +58,8 @@ export default () => {
     { rows: transactions, count: txCount },
     setTransactionResult
   ] = useState<PagedResult<TransactionInfo>>({ rows: [], count: 0 });
+  const theme = useTheme();
+  const matchesSmUp = useMediaQuery(theme.breakpoints.up('md'));
 
   let infoSubscription: Subscription;
 
@@ -113,7 +117,11 @@ export default () => {
           </CardContent>
         </Card>
       </Box>
-      <Box display="flex" m={-2}>
+      <Box
+        display="flex"
+        m={matchesSmUp ? -2 : 0}
+        flexDirection={matchesSmUp ? 'row' : 'column'}
+      >
         <Box flexGrow={1} p={2}>
           <Paper>
             <TableContainer>
