@@ -18,7 +18,7 @@ import { IconButton } from '@material-ui/core';
 import { ArrowBack } from '@material-ui/icons';
 import ActivityIndicator from '~components/ActivityIndicator';
 import SearchForm from '~features/transactions/SearchForm';
-import { SearchParams } from '~api';
+import { SearchParams, fetchPrice } from '~api';
 import { searchRequest } from '~api/search';
 import { AddressInfo, BlockInfo, TransactionInfo } from '~api/types';
 
@@ -34,6 +34,7 @@ export default () => {
   // const { rows = [], count = -1 } = transactionResult || {};
   const [address, setAddress] = useState<AddressInfo | null>(null);
   const [block, setBlock] = useState<BlockInfo | null>(null);
+  const [fiatPrice, setFiatPrice] = useState<number>(0);
 
   const isSingleTransaction = term && !address && !block && rows.length === 1;
   const transaction = isSingleTransaction ? rows[0] : null;
@@ -44,28 +45,32 @@ export default () => {
 
   useEffect(() => {
     setPending(true);
-    searchRequest(term, {
-      onTx: r => {
-        setBlock(null);
-        setAddress(null);
-        setTransactionResult([r]);
-      },
-      onBlock: r => {
-        setAddress(null);
-        setBlock(r.block);
-        setTransactionResult(r.txs);
-      },
-      onAddress: r => {
-        setBlock(null);
-        setAddress(r.balance);
-        setTransactionResult(r.txs);
-      },
-      onNotFound: () => {
-        setBlock(null);
-        setAddress(null);
-        setTransactionResult([]);
-      }
-    }).then(() => {
+    Promise.all([
+      searchRequest(term, {
+        onTx: r => {
+          setBlock(null);
+          setAddress(null);
+          setTransactionResult([r]);
+        },
+        onBlock: r => {
+          setAddress(null);
+          setBlock(r.block);
+          setTransactionResult(r.txs);
+        },
+        onAddress: r => {
+          setBlock(null);
+          setAddress(r.balance);
+          setTransactionResult(r.txs);
+        },
+        onNotFound: () => {
+          setBlock(null);
+          setAddress(null);
+          setTransactionResult([]);
+        }
+      }),
+      fetchPrice('usd')
+    ]).then(resp => {
+      setFiatPrice(resp[1]['usd']);
       setPending(false);
     });
   }, [location]);
@@ -112,9 +117,10 @@ export default () => {
                   <TableRow>
                     <TableCell size="small">Balance</TableCell>
                     <TableCell>
-                      {(address && `${address.balance / 1e8} $DAG`) || (
-                        <Skeleton variant="text" />
-                      )}
+                      {(address &&
+                        `${address.balance / 1e8} $DAG ($${(address.balance *
+                          fiatPrice) /
+                          1e8} USD)`) || <Skeleton variant="text" />}
                     </TableCell>
                   </TableRow>
                   {/*<TableRow>*/}
@@ -214,7 +220,11 @@ export default () => {
                   <TableRow>
                     <TableCell>Amount</TableCell>
                     <TableCell>
-                      {(transaction!.amount / 1e8).toLocaleString()} $DAG
+                      {(transaction!.amount / 1e8).toLocaleString(
+                        navigator.language
+                      )}{' '}
+                      $DAG ($
+                      {(transaction!.amount * fiatPrice) / 1e8} USD)
                     </TableCell>
                   </TableRow>
                 </TableBody>
