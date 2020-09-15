@@ -3,6 +3,8 @@ import { useForm } from 'react-hook-form';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Box from '@material-ui/core/Box';
+import Alert from '@material-ui/lab/Alert';
+import * as yup from 'yup';
 import { SearchParams } from '~api';
 import { TransactionInfo } from '~api/types';
 
@@ -11,9 +13,15 @@ export interface SearchFormProps extends SearchParams<TransactionInfo> {
 }
 
 export default ({ onFormSubmit, ...defaultValues }: SearchFormProps) => {
-  const { register, handleSubmit, reset } = useForm<
+  const validationSchema = yup.object({
+    term: yup
+      .string()
+      .required('Please type address, block or tx hash to search')
+  });
+  const { register, handleSubmit, reset, errors } = useForm<
     SearchParams<TransactionInfo>
   >({
+    validationSchema,
     defaultValues
   });
 
@@ -37,6 +45,8 @@ export default ({ onFormSubmit, ...defaultValues }: SearchFormProps) => {
           Search
         </Button>
       </Box>
+
+      {errors.term && <Alert severity="error">{errors.term.message}</Alert>}
     </form>
   );
 };
