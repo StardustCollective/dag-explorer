@@ -13,6 +13,16 @@ export const Main = styled.div`
 
 export const Content = styled.div`
   padding: 24px;
+  margin: 0px 24px;
+
+  @media (max-width: 924px) {
+    padding: 12px;
+    margin: 0px;
+  }
+  @media (max-width: 600px) {
+    padding: 4px;
+    margin: 0px;
+  }
 `;
 
 export const Shape = styled.img.attrs(() => ({

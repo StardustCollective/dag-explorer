@@ -3,6 +3,10 @@ import { useForm } from 'react-hook-form';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Box from '@material-ui/core/Box';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
+import useTheme from '@material-ui/core/styles/useTheme';
+import Alert from '@material-ui/lab/Alert';
+import * as yup from 'yup';
 import { SearchParams } from '~api';
 import { TransactionInfo } from '~api/types';
 
@@ -11,9 +15,15 @@ export interface SearchFormProps extends SearchParams<TransactionInfo> {
 }
 
 export default ({ onFormSubmit, ...defaultValues }: SearchFormProps) => {
-  const { register, handleSubmit, reset } = useForm<
+  const validationSchema = yup.object({
+    term: yup
+      .string()
+      .required('Please type address, block or tx hash to search')
+  });
+  const { register, handleSubmit, reset, errors } = useForm<
     SearchParams<TransactionInfo>
   >({
+    validationSchema,
     defaultValues
   });
 
@@ -21,9 +31,16 @@ export default ({ onFormSubmit, ...defaultValues }: SearchFormProps) => {
     reset(defaultValues);
   }, [JSON.stringify(defaultValues)]);
 
+  const theme = useTheme();
+  const matchesSmUp = useMediaQuery(theme.breakpoints.up('sm'));
+
   return (
     <form onSubmit={handleSubmit(onFormSubmit)} noValidate autoComplete="off">
-      <Box width="100%" display="flex">
+      <Box
+        width="100%"
+        display="flex"
+        flexDirection={matchesSmUp ? 'row' : 'column'}
+      >
         <TextField
           inputRef={register}
           id="search"
@@ -37,6 +54,8 @@ export default ({ onFormSubmit, ...defaultValues }: SearchFormProps) => {
           Search
         </Button>
       </Box>
+
+      {errors.term && <Alert severity="error">{errors.term.message}</Alert>}
     </form>
   );
 };

@@ -2,6 +2,8 @@ export class AppEnv {
   static STAR_GAZER_API = 'https://www.stargazer.network/api/v1';
   static DAG_EXPLORER_API = 'https://www.dagexplorer.io/api/v1';
   static DAG_EXPLORER_REST = 'https://dag-explorer.firebaseio.com/app';
+  static DAG_PRICE_API =
+    'https://api.coingecko.com/api/v3/simple/price?ids=constellation-labs&vs_currencies=';
 
   static FIREBASE_CONFIG = {
     apiKey: 'AIzaSyCss80gAltjQlksPtWj0uBM7xty3QLWISs',

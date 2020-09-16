@@ -24,7 +24,11 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "types": ["node"],
-    "typeRoots": ["./node_modules/@types", "./src/@types", "./config/**/@types"],
+    "typeRoots": [
+      "./node_modules/@types",
+      "./src/@types",
+      "./config/**/@types"
+    ],
     "lib": ["es6", "es2016.array.include", "es2017", "dom", "dom.iterable"],
     "resolveJsonModule": true
   },

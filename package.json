@@ -11,6 +11,7 @@
     "@material-ui/lab": "^4.0.0-alpha.53",
     "@material-ui/styles": "^4.9.10",
     "@openfonts/poppins_all": "^1.44.4",
+    "@types/yup": "^0.29.7",
     "firebase": "^7.14.4",
     "material-ui-popup-state": "^1.5.4",
     "moment": "^2 <2.25 || ^2 >2.25",
@@ -21,7 +22,8 @@
     "react-hook-form": "^5.6.0",
     "react-router-dom": "^5.1.2",
     "styled-components": "^5.1.0",
-    "whatwg-fetch": "^3.0.0"
+    "whatwg-fetch": "^3.0.0",
+    "yup": "^0.29.3"
   },
   "devDependencies": {
     "@babel/core": "^7.8.4",
