@@ -246,7 +246,7 @@ export default () => {
                         </TableCell>
                         <TableCell size="small">
                           <Typography variant="body2" display="block" noWrap>
-                            {amount} DAG
+                            {amount.toLocaleString(navigator.language)} DAG
                           </Typography>
                         </TableCell>
                         <TableCell size="small">

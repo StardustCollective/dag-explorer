@@ -4,6 +4,8 @@ export class AppEnv {
   static DAG_EXPLORER_REST = 'https://dag-explorer.firebaseio.com/app';
   static DAG_PRICE_API =
     'https://api.coingecko.com/api/v3/simple/price?ids=constellation-labs&vs_currencies=';
+  static DAG_BLOCK_EXPLORER_API =
+    'https://block-explorer.constellationnetwork.io/transaction/';
 
   static FIREBASE_CONFIG = {
     apiKey: 'AIzaSyCss80gAltjQlksPtWj0uBM7xty3QLWISs',

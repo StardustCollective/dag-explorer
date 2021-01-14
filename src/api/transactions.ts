@@ -3,6 +3,7 @@ import { PagedResult, SearchParams, PagedParams } from '.';
 import { AppEnv } from '../app-env';
 import { latestInfo } from '~api/latest-info';
 import { TransactionInfo } from '~api/types';
+import fetchAPI from '~utils/apiUtils';
 
 export const fetchTransactions = async (
   params?: SearchParams<TransactionInfo> & PagedParams
@@ -69,4 +70,15 @@ export const fetchTransactions = async (
   const count = term ? rows.length : latestInfo.txCount;
 
   return { rows, count };
+};
+
+export const checkPendingTx = async (txHash: string) => {
+  try {
+    await fetchAPI(`${AppEnv.DAG_BLOCK_EXPLORER_API}${txHash}`);
+    return true;
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log(error);
+    return false;
+  }
 };
