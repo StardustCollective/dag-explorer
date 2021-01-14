@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useLocation, useHistory, Link as RouterLink } from 'react-router-dom';
 import qs from 'qs';
+import moment from 'moment';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
@@ -40,7 +41,7 @@ export default () => {
   const transaction = isSingleTransaction ? rows[0] : null;
 
   const handleSearch = ({ term }: SearchParams<TransactionInfo>) => {
-    history.push({ search: qs.stringify({ term }) });
+    history.push({ search: qs.stringify({ term, orderBy: 'value' }) });
   };
 
   useEffect(() => {
@@ -55,12 +56,24 @@ export default () => {
         onBlock: r => {
           setAddress(null);
           setBlock(r.block);
-          setTransactionResult(r.txs);
+          setTransactionResult(
+            r.txs.sort(
+              (a, b) =>
+                new Date(b.timestamp).getTime() -
+                new Date(a.timestamp).getTime()
+            )
+          );
         },
         onAddress: r => {
           setBlock(null);
           setAddress(r.balance);
-          setTransactionResult(r.txs);
+          setTransactionResult(
+            r.txs.sort(
+              (a, b) =>
+                new Date(b.timestamp).getTime() -
+                new Date(a.timestamp).getTime()
+            )
+          );
         },
         onNotFound: () => {
           setBlock(null);
@@ -235,6 +248,14 @@ export default () => {
                       USD)
                     </TableCell>
                   </TableRow>
+                  <TableRow>
+                    <TableCell>Timestamp</TableCell>
+                    <TableCell>
+                      {moment(transaction!.timestamp).format(
+                        'MMM D YYYY h:m:s a'
+                      )}
+                    </TableCell>
+                  </TableRow>
                 </TableBody>
               </Table>
             </CardContent>
@@ -255,11 +276,20 @@ export default () => {
                       <TableCell>To</TableCell>
                       <TableCell>Value</TableCell>
                       <TableCell>Fee</TableCell>
+                      <TableCell>Timestamp</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {rows.map(
-                      ({ amount, block, hash, sender, receiver, fee }) => (
+                      ({
+                        amount,
+                        block,
+                        hash,
+                        sender,
+                        receiver,
+                        fee,
+                        timestamp
+                      }) => (
                         <TableRow key={hash}>
                           <TableCell size="small">
                             <Typography variant="body2" display="block" noWrap>
@@ -314,6 +344,9 @@ export default () => {
                           </TableCell>
                           <TableCell size="small">
                             {(fee / 1e8).toLocaleString(navigator.language)}
+                          </TableCell>
+                          <TableCell size="small">
+                            {moment(timestamp).format('MMM D YYYY h:m:s a')}
                           </TableCell>
                         </TableRow>
                       )
