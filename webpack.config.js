@@ -64,12 +64,13 @@ module.exports = (env = {}, argv = {}) => {
       publicPath,
       host: '0.0.0.0',
       port: 3000,
-      // proxy: {
-      //   '/api': {
-      //     target: 'http://localhost:8888',
-      //     secure: false,
-      //   },
-      // },
+      proxy: {
+        '/api': {
+          changeOrigin: true,
+          target: 'https://www.dagexplorer.io',
+          secure: false
+        }
+      },
       clientLogLevel: 'error',
     },
     devtool: 'source-map',
