@@ -128,13 +128,13 @@ export default () => {
             <TableContainer>
               <Box p={1}>
                 <Typography variant="h6" component="h3">
-                  Latest Blocks
+                  Latest Checkpoint Blocks
                 </Typography>
               </Box>
               <Table aria-label="Latest Blocks Results">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Height</TableCell>
+                    <TableCell>Snapshot Height</TableCell>
                     <TableCell>Hash</TableCell>
                     <TableCell>Amount</TableCell>
                   </TableRow>
@@ -246,7 +246,7 @@ export default () => {
                         </TableCell>
                         <TableCell size="small">
                           <Typography variant="body2" display="block" noWrap>
-                            {amount.toLocaleString(navigator.language)} DAG
+                            {(amount / 1e8).toLocaleString(navigator.language)} DAG
                           </Typography>
                         </TableCell>
                         <TableCell size="small">
