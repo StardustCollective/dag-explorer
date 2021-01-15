@@ -53,7 +53,7 @@ export default () => {
       searchRequest(term, {
         onTx: (r, pending) => {
           if (pending) {
-            // check if tx is confirmed every 30 mintues
+            // check if tx is confirmed every 30 seconds
             const intervalId = setInterval(async () => {
               const status = await checkPendingTx(r.hash);
               if (status) {
@@ -150,10 +150,10 @@ export default () => {
                         )} $DAG ($${(
                           (address.balance * fiatPrice) /
                           1e8
-                        ).toLocaleString(
-                          navigator.language,
-                          fractionDigits
-                        )} USD)`) || <Skeleton variant="text" />}
+                        ).toLocaleString(navigator.language, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                        })} USD)`) || <Skeleton variant="text" />}
                     </TableCell>
                   </TableRow>
                   {/*<TableRow>*/}
@@ -364,7 +364,7 @@ export default () => {
                             </Typography>
                           </TableCell>
                           <TableCell size="small">
-                            {amount.toLocaleString(
+                            {(amount / 1e8).toLocaleString(
                               navigator.language,
                               fractionDigits
                             )}
