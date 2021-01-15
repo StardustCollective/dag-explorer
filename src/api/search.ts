@@ -19,7 +19,7 @@ export const searchRequest = async (term: string, handler: SearchSwitch) => {
     } else if (search.type === SearchType.BLOCK) {
       handler.onBlock(search.result);
     } else {
-      handler.onTx(search.result);
+      handler.onTx(search.result, search.type === SearchType.PENDING_TX);
     }
   } else {
     handler.onNotFound();
@@ -27,7 +27,7 @@ export const searchRequest = async (term: string, handler: SearchSwitch) => {
 };
 
 type SearchSwitch = {
-  onTx: (tx: TransactionResult) => void;
+  onTx: (tx: TransactionResult, isPending: boolean) => void;
   onBlock: (block: BlockResult) => void;
   onAddress: (account: AddressResult) => void;
   onNotFound: () => void;
@@ -45,10 +45,15 @@ type AddressResult = {
   txs: TransactionInfo[];
 };
 
-type Search = SearchResultsAddress | SearchResultsBlock | SearchResultsTx;
+type Search =
+  | SearchResultsAddress
+  | SearchResultsBlock
+  | SearchResultsTx
+  | SearchPendingResultsTx;
 
 enum SearchType {
   TX = 'TX',
+  PENDING_TX = 'PENDING-TX',
   BLOCK = 'BLOCK',
   ADDRESS = 'ADDRESS'
 }
@@ -65,6 +70,11 @@ type SearchResultsBlock = {
 
 type SearchResultsTx = {
   type: SearchType.TX;
+  result: TransactionResult;
+};
+
+type SearchPendingResultsTx = {
+  type: SearchType.PENDING_TX;
   result: TransactionResult;
 };
 

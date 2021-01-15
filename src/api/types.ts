@@ -6,6 +6,7 @@ export type TransactionInfo = {
   isDummy?: boolean;
   receiver: string;
   sender: string;
+  timestamp: string;
 };
 
 type Aggregation = {

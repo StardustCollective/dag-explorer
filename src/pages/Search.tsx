@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useLocation, useHistory, Link as RouterLink } from 'react-router-dom';
 import qs from 'qs';
+import moment from 'moment';
 import Card from '@material-ui/core/Card';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
@@ -18,7 +20,7 @@ import { IconButton } from '@material-ui/core';
 import { ArrowBack } from '@material-ui/icons';
 import ActivityIndicator from '~components/ActivityIndicator';
 import SearchForm from '~features/transactions/SearchForm';
-import { SearchParams, fetchPrice } from '~api';
+import { SearchParams, fetchPrice, checkPendingTx } from '~api';
 import { searchRequest } from '~api/search';
 import { AddressInfo, BlockInfo, TransactionInfo } from '~api/types';
 
@@ -29,6 +31,7 @@ export default () => {
     location
   ]);
   const { term } = params;
+  const [updated, setUpdated] = useState(0);
   const [isPending, setPending] = useState<boolean>(true);
   const [rows, setTransactionResult] = useState<TransactionInfo[]>([]);
   // const { rows = [], count = -1 } = transactionResult || {};
@@ -38,6 +41,7 @@ export default () => {
 
   const isSingleTransaction = term && !address && !block && rows.length === 1;
   const transaction = isSingleTransaction ? rows[0] : null;
+  const fractionDigits = { minimumFractionDigits: 2, maximumFractionDigits: 8 };
 
   const handleSearch = ({ term }: SearchParams<TransactionInfo>) => {
     history.push({ search: qs.stringify({ term }) });
@@ -47,7 +51,17 @@ export default () => {
     setPending(true);
     Promise.all([
       searchRequest(term, {
-        onTx: r => {
+        onTx: (r, pending) => {
+          if (pending) {
+            // check if tx is confirmed every 30 mintues
+            const intervalId = setInterval(async () => {
+              const status = await checkPendingTx(r.hash);
+              if (status) {
+                clearInterval(intervalId);
+                setUpdated(new Date().getTime());
+              }
+            }, 30 * 1000);
+          }
           setBlock(null);
           setAddress(null);
           setTransactionResult([r]);
@@ -55,12 +69,24 @@ export default () => {
         onBlock: r => {
           setAddress(null);
           setBlock(r.block);
-          setTransactionResult(r.txs);
+          setTransactionResult(
+            r.txs.sort(
+              (a, b) =>
+                new Date(b.timestamp).getTime() -
+                new Date(a.timestamp).getTime()
+            )
+          );
         },
         onAddress: r => {
           setBlock(null);
           setAddress(r.balance);
-          setTransactionResult(r.txs);
+          setTransactionResult(
+            r.txs.sort(
+              (a, b) =>
+                new Date(b.timestamp).getTime() -
+                new Date(a.timestamp).getTime()
+            )
+          );
         },
         onNotFound: () => {
           setBlock(null);
@@ -73,7 +99,7 @@ export default () => {
       setFiatPrice(resp[1]['usd']);
       setPending(false);
     });
-  }, [location]);
+  }, [location, updated]);
 
   return (
     <>
@@ -119,13 +145,15 @@ export default () => {
                     <TableCell>
                       {(address &&
                         `${(address.balance / 1e8).toLocaleString(
-                          navigator.language
+                          navigator.language,
+                          fractionDigits
                         )} $DAG ($${(
                           (address.balance * fiatPrice) /
                           1e8
-                        ).toLocaleString(navigator.language)} USD)`) || (
-                        <Skeleton variant="text" />
-                      )}
+                        ).toLocaleString(
+                          navigator.language,
+                          fractionDigits
+                        )} USD)`) || <Skeleton variant="text" />}
                     </TableCell>
                   </TableRow>
                   {/*<TableRow>*/}
@@ -175,7 +203,7 @@ export default () => {
           <Card>
             <CardContent>
               <Typography gutterBottom variant="h6" component="h2">
-                Transaction
+                {transaction!.block ? 'Transaction' : 'Pending Transaction'}
               </Typography>
               <Table aria-label="Transaction Details">
                 <TableBody>
@@ -186,14 +214,21 @@ export default () => {
                   <TableRow>
                     <TableCell>Block</TableCell>
                     <TableCell>
-                      <Link
-                        component={RouterLink}
-                        to={`/search?${qs.stringify({
-                          term: transaction!.block
-                        })}`}
-                      >
-                        {transaction!.block}
-                      </Link>
+                      {transaction?.block ? (
+                        <Link
+                          component={RouterLink}
+                          to={`/search?${qs.stringify({
+                            term: transaction!.block
+                          })}`}
+                        >
+                          {transaction?.block}
+                        </Link>
+                      ) : (
+                        <>
+                          <CircularProgress size={16} />
+                          {` (Pending)`}
+                        </>
+                      )}
                     </TableCell>
                   </TableRow>
                   <TableRow>
@@ -226,13 +261,23 @@ export default () => {
                     <TableCell>Amount</TableCell>
                     <TableCell>
                       {(transaction!.amount / 1e8).toLocaleString(
-                        navigator.language
+                        navigator.language,
+                        fractionDigits
                       )}{' '}
                       $DAG ($
                       {((transaction!.amount * fiatPrice) / 1e8).toLocaleString(
-                        navigator.language
+                        navigator.language,
+                        fractionDigits
                       )}{' '}
                       USD)
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Timestamp</TableCell>
+                    <TableCell>
+                      {moment(transaction!.timestamp).format(
+                        'MMM D YYYY h:m:s a'
+                      )}
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -255,11 +300,20 @@ export default () => {
                       <TableCell>To</TableCell>
                       <TableCell>Value</TableCell>
                       <TableCell>Fee</TableCell>
+                      <TableCell>Timestamp</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {rows.map(
-                      ({ amount, block, hash, sender, receiver, fee }) => (
+                      ({
+                        amount,
+                        block,
+                        hash,
+                        sender,
+                        receiver,
+                        fee,
+                        timestamp
+                      }) => (
                         <TableRow key={hash}>
                           <TableCell size="small">
                             <Typography variant="body2" display="block" noWrap>
@@ -310,10 +364,19 @@ export default () => {
                             </Typography>
                           </TableCell>
                           <TableCell size="small">
-                            {(amount / 1e8).toLocaleString(navigator.language)}
+                            {amount.toLocaleString(
+                              navigator.language,
+                              fractionDigits
+                            )}
                           </TableCell>
                           <TableCell size="small">
-                            {(fee / 1e8).toLocaleString(navigator.language)}
+                            {(fee / 1e8).toLocaleString(
+                              navigator.language,
+                              fractionDigits
+                            )}
+                          </TableCell>
+                          <TableCell size="small">
+                            {moment(timestamp).format('MMM D YYYY h:m:s a')}
                           </TableCell>
                         </TableRow>
                       )

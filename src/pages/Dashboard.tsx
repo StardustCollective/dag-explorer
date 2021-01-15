@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useHistory, Link as RouterLink } from 'react-router-dom';
 import qs from 'qs';
+import moment from 'moment';
 import { Subscription } from 'rxjs';
 import {
   Box,
@@ -202,52 +203,60 @@ export default () => {
                     <TableCell>Hash</TableCell>
                     <TableCell>From / To</TableCell>
                     <TableCell>Value</TableCell>
+                    <TableCell>Timestamp</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {transactions.map(({ hash, sender, receiver, amount }) => (
-                    <TableRow key={hash}>
-                      <TableCell size="small">
-                        <Typography variant="body2" display="block" noWrap>
-                          <Link
-                            component={RouterLink}
-                            to={`/search?${qs.stringify({ term: hash })}`}
-                          >
-                            {hash}
-                          </Link>
-                        </Typography>
-                      </TableCell>
-                      <TableCell size="small">
-                        <Typography variant="body2" display="block" noWrap>
-                          From:{' '}
-                          <Link
-                            component={RouterLink}
-                            to={`/search?${qs.stringify({
-                              term: sender
-                            })}`}
-                          >
-                            {sender}
-                          </Link>
-                        </Typography>
-                        <Typography variant="body2" display="block" noWrap>
-                          To:{' '}
-                          <Link
-                            component={RouterLink}
-                            to={`/search?${qs.stringify({
-                              term: receiver
-                            })}`}
-                          >
-                            {receiver}
-                          </Link>
-                        </Typography>
-                      </TableCell>
-                      <TableCell size="small">
-                        <Typography variant="body2" display="block" noWrap>
-                          {amount} DAG
-                        </Typography>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {transactions.map(
+                    ({ hash, sender, receiver, amount, timestamp }) => (
+                      <TableRow key={hash}>
+                        <TableCell size="small">
+                          <Typography variant="body2" display="block" noWrap>
+                            <Link
+                              component={RouterLink}
+                              to={`/search?${qs.stringify({ term: hash })}`}
+                            >
+                              {hash}
+                            </Link>
+                          </Typography>
+                        </TableCell>
+                        <TableCell size="small">
+                          <Typography variant="body2" display="block" noWrap>
+                            From:{' '}
+                            <Link
+                              component={RouterLink}
+                              to={`/search?${qs.stringify({
+                                term: sender
+                              })}`}
+                            >
+                              {sender}
+                            </Link>
+                          </Typography>
+                          <Typography variant="body2" display="block" noWrap>
+                            To:{' '}
+                            <Link
+                              component={RouterLink}
+                              to={`/search?${qs.stringify({
+                                term: receiver
+                              })}`}
+                            >
+                              {receiver}
+                            </Link>
+                          </Typography>
+                        </TableCell>
+                        <TableCell size="small">
+                          <Typography variant="body2" display="block" noWrap>
+                            {amount.toLocaleString(navigator.language)} DAG
+                          </Typography>
+                        </TableCell>
+                        <TableCell size="small">
+                          <Typography variant="body2" display="block" noWrap>
+                            {moment(timestamp).format('MMM D YYYY h:m:s a')}
+                          </Typography>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>
