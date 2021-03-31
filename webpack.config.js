@@ -13,7 +13,10 @@ module.exports = (env = {}, argv = {}) => {
   const context = path.resolve(__dirname, './src');
   const dist = path.join(__dirname, './dist');
   const mode = argv.mode || process.env.NODE_ENV || 'development';
-  const { 'output-public-path': publicPath = '/', 'output-public-routes': outputPublicRoutes = '' } = argv;
+  const {
+    'output-public-path': publicPath = '/',
+    'output-public-routes': outputPublicRoutes = ''
+  } = argv;
   const pathname = URL.parse(publicPath);
 
   env = {

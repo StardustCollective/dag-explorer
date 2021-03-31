@@ -22,7 +22,12 @@ import ActivityIndicator from '~components/ActivityIndicator';
 import SearchForm from '~features/transactions/SearchForm';
 import { SearchParams, fetchPrice, checkPendingTx } from '~api';
 import { searchRequest } from '~api/search';
-import { AddressInfo, BlockInfo, TransactionInfo } from '~api/types';
+import {
+  AddressInfo,
+  SnapshotInfo,
+  BlockInfo,
+  TransactionInfo
+} from '~api/types';
 
 export default () => {
   const location = useLocation();
@@ -37,9 +42,11 @@ export default () => {
   // const { rows = [], count = -1 } = transactionResult || {};
   const [address, setAddress] = useState<AddressInfo | null>(null);
   const [block, setBlock] = useState<BlockInfo | null>(null);
+  const [snapshot, setSnapshot] = useState<SnapshotInfo | null>(null);
   const [fiatPrice, setFiatPrice] = useState<number>(0);
 
-  const isSingleTransaction = term && !address && !block && rows.length === 1;
+  const isSingleTransaction =
+    term && !address && !block && !snapshot && rows.length === 1;
   const transaction = isSingleTransaction ? rows[0] : null;
   const fractionDigits = { minimumFractionDigits: 2, maximumFractionDigits: 8 };
 
@@ -62,6 +69,7 @@ export default () => {
               }
             }, 30 * 1000);
           }
+          setSnapshot(null);
           setBlock(null);
           setAddress(null);
           setTransactionResult([r]);
@@ -69,6 +77,19 @@ export default () => {
         onBlock: r => {
           setAddress(null);
           setBlock(r.block);
+          setSnapshot(null);
+          setTransactionResult(
+            r.txs.sort(
+              (a, b) =>
+                new Date(b.timestamp).getTime() -
+                new Date(a.timestamp).getTime()
+            )
+          );
+        },
+        onSnapshot: r => {
+          setAddress(null);
+          setBlock(null);
+          setSnapshot(r.snapshot);
           setTransactionResult(
             r.txs.sort(
               (a, b) =>
@@ -79,6 +100,7 @@ export default () => {
         },
         onAddress: r => {
           setBlock(null);
+          setSnapshot(null);
           setAddress(r.balance);
           setTransactionResult(
             r.txs.sort(
@@ -90,6 +112,7 @@ export default () => {
         },
         onNotFound: () => {
           setBlock(null);
+          setSnapshot(null);
           setAddress(null);
           setTransactionResult([]);
         }
@@ -198,6 +221,54 @@ export default () => {
           </Card>
         </Box>
       )}
+      {snapshot && (
+        <Box mb={2}>
+          <Card>
+            <CardContent>
+              <Typography gutterBottom variant="h6" component="h2">
+                Snapshot
+              </Typography>
+              <Table aria-label="Snapshot Details">
+                <TableBody>
+                  <TableRow>
+                    <TableCell>Height</TableCell>
+                    <TableCell>
+                      {Number(snapshot.height).toLocaleString(
+                        navigator.language
+                      )}{' '}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Total DAG</TableCell>
+                    <TableCell size="small">
+                      {(snapshot &&
+                        `${(snapshot.dagAmount / 1e8).toLocaleString(
+                          navigator.language,
+                          fractionDigits
+                        )} ($${(
+                          (snapshot.dagAmount * fiatPrice) /
+                          1e8
+                        ).toLocaleString(navigator.language, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                        })} USD)`) || <Skeleton variant="text" />}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Total Fees</TableCell>
+                    <TableCell>
+                      {(snapshot!.feeAmount / 1e8).toLocaleString(
+                        navigator.language,
+                        fractionDigits
+                      )}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </Box>
+      )}
       {isSingleTransaction && (
         <Box mb={2}>
           <Card>
@@ -295,7 +366,6 @@ export default () => {
                   <TableHead>
                     <TableRow>
                       <TableCell>Transaction</TableCell>
-                      <TableCell>Block</TableCell>
                       <TableCell>From</TableCell>
                       <TableCell>To</TableCell>
                       <TableCell>Value</TableCell>
@@ -305,15 +375,7 @@ export default () => {
                   </TableHead>
                   <TableBody>
                     {rows.map(
-                      ({
-                        amount,
-                        block,
-                        hash,
-                        sender,
-                        receiver,
-                        fee,
-                        timestamp
-                      }) => (
+                      ({ amount, hash, sender, receiver, fee, timestamp }) => (
                         <TableRow key={hash}>
                           <TableCell size="small">
                             <Typography variant="body2" display="block" noWrap>
@@ -327,18 +389,18 @@ export default () => {
                               </Link>
                             </Typography>
                           </TableCell>
-                          <TableCell size="small">
-                            <Typography variant="body2" display="block" noWrap>
-                              <Link
-                                component={RouterLink}
-                                to={`/search?${qs.stringify({
-                                  term: block
-                                })}`}
-                              >
-                                {block}
-                              </Link>
-                            </Typography>
-                          </TableCell>
+                          {/*<TableCell size="small">*/}
+                          {/*  <Typography variant="body2" display="block" noWrap>*/}
+                          {/*    <Link*/}
+                          {/*      component={RouterLink}*/}
+                          {/*      to={`/search?${qs.stringify({*/}
+                          {/*        term: block*/}
+                          {/*      })}`}*/}
+                          {/*    >*/}
+                          {/*      {block}*/}
+                          {/*    </Link>*/}
+                          {/*  </Typography>*/}
+                          {/*</TableCell>*/}
                           <TableCell size="small">
                             <Typography variant="body2" display="block" noWrap>
                               <Link

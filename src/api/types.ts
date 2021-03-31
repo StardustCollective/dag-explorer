@@ -12,7 +12,7 @@ export type TransactionInfo = {
 type Aggregation = {
   dagAmount: number;
   feeAmount: number;
-  txCount: 3;
+  txCount: number;
 };
 
 type Range = {
@@ -26,6 +26,13 @@ export type BlockInfo = {
   hash: string;
   height: number;
   range: Range;
+};
+
+export type SnapshotInfo = {
+  dagAmount: number;
+  feeAmount: number;
+  txCount: number;
+  height: number;
 };
 
 export type AddressInfo = {

@@ -45,7 +45,7 @@ export default ({ onFormSubmit, ...defaultValues }: SearchFormProps) => {
           inputRef={register}
           id="search"
           name="term"
-          label="Search by address, block, or tx hash"
+          label="Search by address, snapshot height, or tx hash"
           variant="outlined"
           fullWidth
         />

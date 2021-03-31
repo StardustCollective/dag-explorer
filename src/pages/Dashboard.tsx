@@ -25,12 +25,12 @@ import SearchForm from '~features/transactions/SearchForm';
 import {
   PagedResult,
   SearchParams,
-  fetchBlocks,
+  fetchSnapshots,
   observeInfo,
   fetchTransactions
 } from '~api';
 import { latestInfo } from '~api/latest-info';
-import { BlockInfo, TransactionInfo } from '~api/types';
+import { SnapshotInfo, TransactionInfo } from '~api/types';
 
 export default () => {
   const location = useLocation();
@@ -40,13 +40,15 @@ export default () => {
   ]);
   const { term } = params;
 
-  const [isBlocksPending, setBlocksPending] = useState<boolean>(false);
+  //const [isBlocksPending, setBlocksPending] = useState<boolean>(false);
+  const [isSnapshotsPending, setSnapshotsPending] = useState<boolean>(false);
   const [blocksPerPage, setBlocksPerPage] = useState<number>(9);
   const [snapshotHeight, setSnapshotHeight] = useState<number>(-1);
   const [cleanupInfo] = useState<boolean>(false);
-  const [{ rows: blocks, count: blockCount }, setBlockResult] = useState<
-    PagedResult<BlockInfo>
-  >({
+  const [
+    { rows: snapshots, count: snapshotCount },
+    setSnapshotsResult
+  ] = useState<PagedResult<SnapshotInfo>>({
     rows: [],
     count: 0
   });
@@ -68,7 +70,7 @@ export default () => {
     if (!infoSubscription) {
       infoSubscription = observeInfo().subscribe(info => {
         latestInfo.update(info);
-        setSnapshotHeight(info.blockHeight);
+        setSnapshotHeight(info.height);
       });
     }
 
@@ -77,12 +79,22 @@ export default () => {
     };
   }, [cleanupInfo]);
 
+  // useEffect(() => {
+  //   if (snapshotHeight > 0) {
+  //     setBlocksPending(true);
+  //     fetchBlocks({ startAt: 0, endAt: blocksPerPage }).then(payload => {
+  //       setBlocksPending(false);
+  //       setBlockResult(payload);
+  //     });
+  //   }
+  // }, [blocksPerPage, snapshotHeight]);
+
   useEffect(() => {
     if (snapshotHeight > 0) {
-      setBlocksPending(true);
-      fetchBlocks({ startAt: 0, endAt: blocksPerPage }).then(payload => {
-        setBlocksPending(false);
-        setBlockResult(payload);
+      setSnapshotsPending(true);
+      fetchSnapshots({ startAt: 0, endAt: blocksPerPage }).then(payload => {
+        setSnapshotsPending(false);
+        setSnapshotsResult(payload);
       });
     }
   }, [blocksPerPage, snapshotHeight]);
@@ -128,60 +140,65 @@ export default () => {
             <TableContainer>
               <Box p={1}>
                 <Typography variant="h6" component="h3">
-                  Latest Checkpoint Blocks
+                  Snapshots
                 </Typography>
               </Box>
-              <Table aria-label="Latest Blocks Results">
+              <Table aria-label="Snapshot Results">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Snapshot Height</TableCell>
-                    <TableCell>Hash</TableCell>
+                    <TableCell>Height</TableCell>
+                    {/*<TableCell>Hash</TableCell>*/}
                     <TableCell>Amount</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {blocks.map(
-                    ({ hash, aggr: { dagAmount, txCount }, height }) => (
-                      <TableRow key={hash}>
-                        <TableCell size="small">
-                          <Typography variant="body2" display="block" noWrap>
+                  {snapshots.map(({ dagAmount, txCount, height }) => (
+                    <TableRow key={height}>
+                      {/*<TableCell size="small">*/}
+                      {/*  <Typography variant="body2" display="block" noWrap>*/}
+                      {/*    {height}*/}
+                      {/*  </Typography>*/}
+                      {/*</TableCell>*/}
+                      <TableCell size="small">
+                        <Typography variant="body2" display="block" noWrap>
+                          <Link
+                            component={RouterLink}
+                            to={`/search?${qs.stringify({
+                              term: height
+                            })}`}
+                          >
                             {height}
-                          </Typography>
-                        </TableCell>
-                        <TableCell size="small">
-                          <Typography variant="body2" display="block" noWrap>
-                            <Link
-                              component={RouterLink}
-                              to={`/search?${qs.stringify({
-                                term: hash
-                              })}`}
-                            >
-                              {hash}
-                            </Link>
-                          </Typography>
-                        </TableCell>
-                        <TableCell size="small">
-                          <Typography variant="body2" display="block" noWrap>
-                            {dagAmount} DAG
-                          </Typography>
-                          <Typography variant="body2" display="block" noWrap>
-                            {txCount} Transactions
-                          </Typography>
-                        </TableCell>
-                      </TableRow>
-                    )
-                  )}
+                          </Link>
+                        </Typography>
+                      </TableCell>
+                      <TableCell size="small">
+                        <Typography variant="body2" display="block" noWrap>
+                          {(dagAmount / 1e8).toLocaleString(
+                            navigator.language,
+                            {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 8
+                            }
+                          )}{' '}
+                          DAG
+                        </Typography>
+                        <Typography variant="body2" display="block" noWrap>
+                          {txCount} Transactions
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             </TableContainer>
-            {blocks.length < blockCount && (
+            {snapshots.length < snapshotCount && (
               <Box p={2} display="flex" justifyContent="center">
                 <Button
                   variant="contained"
                   color="secondary"
                   onClick={() => setBlocksPerPage(blocksPerPage + 10)}
                 >
-                  <ActivityIndicator pending={isBlocksPending}>
+                  <ActivityIndicator pending={isSnapshotsPending}>
                     Load more
                   </ActivityIndicator>
                 </Button>
@@ -194,10 +211,10 @@ export default () => {
             <TableContainer>
               <Box p={1}>
                 <Typography variant="h6" component="h3">
-                  Latest Transactions
+                  Transactions
                 </Typography>
               </Box>
-              <Table aria-label="Latest Transactions Results">
+              <Table aria-label="Transaction Results">
                 <TableHead>
                   <TableRow>
                     <TableCell>Hash</TableCell>
@@ -246,12 +263,13 @@ export default () => {
                         </TableCell>
                         <TableCell size="small">
                           <Typography variant="body2" display="block" noWrap>
-                            {(amount / 1e8).toLocaleString(navigator.language)} DAG
+                            {(amount / 1e8).toLocaleString(navigator.language)}{' '}
+                            DAG
                           </Typography>
                         </TableCell>
                         <TableCell size="small">
                           <Typography variant="body2" display="block" noWrap>
-                            {moment(timestamp).format('MMM D YYYY h:m:s a')}
+                            {moment(timestamp).format('MMM D YYYY hh:mm:ss a')}
                           </Typography>
                         </TableCell>
                       </TableRow>

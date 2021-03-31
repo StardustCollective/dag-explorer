@@ -1,5 +1,10 @@
 import { AppEnv } from '../app-env';
-import { AddressInfo, BlockInfo, TransactionInfo } from '~api/types';
+import {
+  AddressInfo,
+  BlockInfo,
+  SnapshotInfo,
+  TransactionInfo
+} from '~api/types';
 
 export const searchRequest = async (term: string, handler: SearchSwitch) => {
   let result: Response | null = null;
@@ -18,6 +23,8 @@ export const searchRequest = async (term: string, handler: SearchSwitch) => {
       handler.onAddress(search.result);
     } else if (search.type === SearchType.BLOCK) {
       handler.onBlock(search.result);
+    } else if (search.type === SearchType.SNAPSHOT) {
+      handler.onSnapshot(search.result);
     } else {
       handler.onTx(search.result, search.type === SearchType.PENDING_TX);
     }
@@ -29,11 +36,17 @@ export const searchRequest = async (term: string, handler: SearchSwitch) => {
 type SearchSwitch = {
   onTx: (tx: TransactionResult, isPending: boolean) => void;
   onBlock: (block: BlockResult) => void;
+  onSnapshot: (snapshot: SnapshotResult) => void;
   onAddress: (account: AddressResult) => void;
   onNotFound: () => void;
 };
 
 type TransactionResult = TransactionInfo;
+
+type SnapshotResult = {
+  snapshot: SnapshotInfo;
+  txs: TransactionInfo[];
+};
 
 type BlockResult = {
   block: BlockInfo;
@@ -48,12 +61,14 @@ type AddressResult = {
 type Search =
   | SearchResultsAddress
   | SearchResultsBlock
+  | SearchResultsSnapshot
   | SearchResultsTx
   | SearchPendingResultsTx;
 
 enum SearchType {
   TX = 'TX',
   PENDING_TX = 'PENDING-TX',
+  SNAPSHOT = 'SNAPSHOT',
   BLOCK = 'BLOCK',
   ADDRESS = 'ADDRESS'
 }
@@ -66,6 +81,11 @@ type SearchResultsAddress = {
 type SearchResultsBlock = {
   type: SearchType.BLOCK;
   result: BlockResult;
+};
+
+type SearchResultsSnapshot = {
+  type: SearchType.SNAPSHOT;
+  result: SnapshotResult;
 };
 
 type SearchResultsTx = {

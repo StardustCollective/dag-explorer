@@ -67,7 +67,7 @@ export const fetchTransactions = async (
     })
   );
 
-  const count = term ? rows.length : latestInfo.txCount;
+  const count = term ? rows.length : 20;
 
   return { rows, count };
 };

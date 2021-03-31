@@ -5,7 +5,7 @@ export type Info = {
   blockCount: number;
   txCount: number;
   cacheJobStatus: string;
-  blockHeight: number;
+  height: number;
   timestamp: number;
 };
 
