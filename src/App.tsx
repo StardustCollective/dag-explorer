@@ -13,7 +13,8 @@ import { Dashboard, Transactions, About, Search } from '~pages';
 const CustomToolBar = withStyles({
   root: {
     background: '#00152F',
-    display: 'flex'
+    display: 'flex',
+    minHeight: '60px'
   }
 })(Toolbar);
 
