@@ -11,10 +11,14 @@ export const Main = styled.div`
   flex: 1 1 auto;
 `;
 
+export const ContentWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+`;
+
 export const Content = styled.div`
   padding: 24px;
-  margin: 0px 24px;
-
+  width: 100%;
   @media (max-width: 924px) {
     padding: 12px;
     margin: 0px;
