@@ -35,7 +35,8 @@ export default () => {
   const params = useMemo(() => qs.parse(location.search.replace(/^\?/, '')), [
     location
   ]);
-  const { term } = params;
+
+  const { term, network } = params;
   const [updated, setUpdated] = useState(0);
   const [isPending, setPending] = useState<boolean>(true);
   const [rows, setTransactionResult] = useState<TransactionInfo[]>([]);
@@ -57,7 +58,7 @@ export default () => {
   useEffect(() => {
     setPending(true);
     Promise.all([
-      searchRequest(term, {
+      searchRequest(term, network, {
         onTx: (r, pending) => {
           if (pending) {
             // check if tx is confirmed every 30 seconds
@@ -208,7 +209,8 @@ export default () => {
                       <Link
                         component={RouterLink}
                         to={`/search?${qs.stringify({
-                          term: block!.hash
+                          term: block!.hash,
+                          network
                         })}`}
                       >
                         {block!.hash}
@@ -289,7 +291,8 @@ export default () => {
                         <Link
                           component={RouterLink}
                           to={`/search?${qs.stringify({
-                            term: transaction!.block
+                            term: transaction!.block,
+                            network
                           })}`}
                         >
                           {transaction?.block}
@@ -308,7 +311,8 @@ export default () => {
                       <Link
                         component={RouterLink}
                         to={`/search?${qs.stringify({
-                          term: transaction!.sender
+                          term: transaction!.sender,
+                          network
                         })}`}
                       >
                         {transaction!.sender}
@@ -321,7 +325,8 @@ export default () => {
                       <Link
                         component={RouterLink}
                         to={`/search?${qs.stringify({
-                          term: transaction!.receiver
+                          term: transaction!.receiver,
+                          network
                         })}`}
                       >
                         {transaction!.receiver}
@@ -382,31 +387,34 @@ export default () => {
                               <Link
                                 component={RouterLink}
                                 to={`/search?${qs.stringify({
-                                  term: hash
+                                  term: hash,
+                                  network
                                 })}`}
                               >
                                 {hash}
                               </Link>
                             </Typography>
                           </TableCell>
-                          {/*<TableCell size="small">*/}
-                          {/*  <Typography variant="body2" display="block" noWrap>*/}
-                          {/*    <Link*/}
-                          {/*      component={RouterLink}*/}
-                          {/*      to={`/search?${qs.stringify({*/}
-                          {/*        term: block*/}
-                          {/*      })}`}*/}
-                          {/*    >*/}
-                          {/*      {block}*/}
-                          {/*    </Link>*/}
-                          {/*  </Typography>*/}
-                          {/*</TableCell>*/}
                           <TableCell size="small">
                             <Typography variant="body2" display="block" noWrap>
                               <Link
                                 component={RouterLink}
                                 to={`/search?${qs.stringify({
-                                  term: sender
+                                  term: block,
+                                  network
+                                })}`}
+                              >
+                                {block}
+                              </Link>
+                            </Typography>
+                          </TableCell>
+                          <TableCell size="small">
+                            <Typography variant="body2" display="block" noWrap>
+                              <Link
+                                component={RouterLink}
+                                to={`/search?${qs.stringify({
+                                  term: sender,
+                                  network
                                 })}`}
                               >
                                 {sender}
@@ -418,7 +426,8 @@ export default () => {
                               <Link
                                 component={RouterLink}
                                 to={`/search?${qs.stringify({
-                                  term: receiver
+                                  term: receiver,
+                                  network
                                 })}`}
                               >
                                 {receiver}
