@@ -3,7 +3,7 @@ import { Route, Switch, useLocation } from 'react-router';
 import qs from 'qs';
 import { useTheme } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
-import { Badge, CssBaseline, MenuItem, Select } from '@material-ui/core';
+import { Badge, CssBaseline, useMediaQuery } from '@material-ui/core';
 import IconButton from '@material-ui/core/IconButton';
 import * as Icon from '@material-ui/icons';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -15,7 +15,6 @@ export default () => {
   // const location = useLocation();
   const theme = useTheme();
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  const [network, setNetwork] = React.useState('main');
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
