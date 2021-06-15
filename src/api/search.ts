@@ -6,11 +6,18 @@ import {
   TransactionInfo
 } from '~api/types';
 
-export const searchRequest = async (term: string, handler: SearchSwitch) => {
+export const searchRequest = async (
+  term: string,
+  network: string,
+  handler: SearchSwitch
+) => {
   let result: Response | null = null;
 
   try {
-    result = await fetch(`${AppEnv.DAG_EXPLORER_API}/search/${term}`);
+    result = await fetch(
+      `${AppEnv.DAG_EXPLORER_API}/search/${term}${network &&
+        `?network=${network}`}`
+    );
   } catch (e) {
     result = null;
   }
