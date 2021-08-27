@@ -1,39 +1,22 @@
 import qs from 'qs';
 import { PagedResult, SearchParams, PagedParams } from '.';
 import { AppEnv } from '../app-env';
-import { latestInfo } from '~api/latest-info';
 import { TransactionInfo } from '~api/types';
 import fetchAPI from '~utils/apiUtils';
 
 export const fetchTransactions = async (
   params?: SearchParams<TransactionInfo> & PagedParams
 ): Promise<PagedResult<TransactionInfo>> => {
-  const filterKeys = ['block', 'hash', 'address'];
-  const { startAt = 0, endAt = 9, term } = params || {};
-  let requestKeys = ['$key'];
-  if (term) {
-    if (term.startsWith('DAG')) {
-      requestKeys = ['address'];
-    } else {
-      requestKeys = filterKeys;
-    }
-  }
+  const { startAt = 0, endAt = 9 } = params || {};
+  const requestKeys = ['$key'];
+
   const requests = requestKeys.map(key => {
-    if (key === 'address') {
-      const queryString = `?${qs.stringify({
-        address: term
-      })}`;
-
-      return fetch(`${AppEnv.STAR_GAZER_API}/transactions${queryString}`);
-    }
-
     const params = Object.assign(
       {},
       {
-        orderBy: JSON.stringify(key),
-        equalTo: term ? JSON.stringify(term) : undefined
+        orderBy: JSON.stringify(key)
       },
-      !term && {
+      {
         startAt: `\"${startAt}\"`,
         endAt: `\"${endAt}\"`
       }
@@ -67,7 +50,7 @@ export const fetchTransactions = async (
     })
   );
 
-  const count = term ? rows.length : 20;
+  const count = 20;
 
   return { rows, count };
 };

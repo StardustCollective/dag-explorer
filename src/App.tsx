@@ -9,7 +9,7 @@ import * as Icon from '@material-ui/icons';
 import Toolbar from '@material-ui/core/Toolbar';
 import { App, Main, Content } from './App.styled';
 import { Logo } from '~assets';
-import { Dashboard, Transactions, About, Search } from '~pages';
+import { Dashboard, About, Search } from '~pages';
 
 export default () => {
   // const location = useLocation();
@@ -48,7 +48,6 @@ export default () => {
           <Switch>
             <Route path="/" exact={true} component={Dashboard} />
             <Route path="/search" exact={true} component={Search} />
-            <Route path="/transactions" exact={true} component={Transactions} />
             <Route path="/about" exact={true} component={About} />
           </Switch>
         </Content>
