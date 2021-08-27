@@ -14,10 +14,11 @@ export const searchRequest = async (
   let result: Response | null = null;
 
   try {
-    result = await fetch(
-      `${AppEnv.DAG_EXPLORER_API}/search/${term}${network &&
-        `?network=${network}`}`
-    );
+    let url = `${AppEnv.DAG_EXPLORER_API}/search/${term}`;
+    if (network) {
+      url += `?network=${network}`;
+    }
+    result = await fetch(url);
   } catch (e) {
     result = null;
   }

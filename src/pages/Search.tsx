@@ -400,19 +400,6 @@ export default () => {
                               <Link
                                 component={RouterLink}
                                 to={`/search?${qs.stringify({
-                                  term: block,
-                                  network
-                                })}`}
-                              >
-                                {block}
-                              </Link>
-                            </Typography>
-                          </TableCell>
-                          <TableCell size="small">
-                            <Typography variant="body2" display="block" noWrap>
-                              <Link
-                                component={RouterLink}
-                                to={`/search?${qs.stringify({
                                   term: sender,
                                   network
                                 })}`}
